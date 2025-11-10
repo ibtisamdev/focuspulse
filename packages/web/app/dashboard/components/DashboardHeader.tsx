@@ -2,13 +2,14 @@
 
 import { UserButton } from '@clerk/nextjs'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Bell } from 'lucide-react'
+import { Bell, Play } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export function DashboardHeader() {
   const pathname = usePathname()
+  const router = useRouter()
 
   const isActive = (path: string) => {
     if (path === '/dashboard') {
@@ -41,27 +42,18 @@ export function DashboardHeader() {
             >
               Planner
             </Link>
-            <Link
-              href="/dashboard/analytics"
-              className={cn(
-                'transition-colors',
-                isActive('/dashboard/analytics') ? 'text-zinc-50' : 'text-zinc-400 hover:text-zinc-300'
-              )}
-            >
-              Analytics
-            </Link>
-            <Link
-              href="/dashboard/settings"
-              className={cn(
-                'transition-colors',
-                isActive('/dashboard/settings') ? 'text-zinc-50' : 'text-zinc-400 hover:text-zinc-300'
-              )}
-            >
-              Settings
-            </Link>
           </div>
         </div>
         <div className="flex items-center gap-4">
+          {/* Start Focus Session Button */}
+          <Button
+            size="sm"
+            className="h-8 bg-zinc-50 text-zinc-900 hover:bg-zinc-200 text-xs font-medium gap-1.5"
+            onClick={() => router.push('/dashboard/session')}
+          >
+            <Play className="h-3.5 w-3.5 fill-zinc-900" />
+            <span className="hidden sm:inline">Start Focus</span>
+          </Button>
           <Button
             variant="outline"
             size="icon"

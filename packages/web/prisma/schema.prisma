@@ -18,27 +18,66 @@ model User {
   firstName String?
   lastName  String?
   imageUrl  String?
+
+  // User preferences
+  weeklyGoalHours    Int      @default(12) // Default 12 hours per week
+  defaultSessionDuration Int  @default(90) // Default 90 minutes
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relations will be added here as the app grows
-  // Example: sessions Session[]
+  // Relations
+  sessions      Session[]
+  plannedBlocks PlannedBlock[]
 
   @@index([clerkId])
   @@index([email])
 }
 
-// Example model - Session tracking (optional)
-// model Session {
-//   id        String   @id @default(cuid())
-//   userId    String
-//   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-//   startTime DateTime @default(now())
-//   endTime   DateTime?
-//   duration  Int?     // in seconds
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-//
-//   @@index([userId])
-//   @@index([startTime])
-// }
+// Session model - Track completed/active deep work sessions
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title     String   // What the user is working on
+  startTime DateTime @default(now())
+  endTime   DateTime? // Null if session is still active
+  duration  Int?     // Duration in seconds (calculated when ended)
+  notes     String?  // Optional notes added at end of session
+
+  isPlanned Boolean  @default(false) // Was this session planned in advance?
+  completed Boolean  @default(false) // Has the session been completed?
+  isPaused  Boolean  @default(false) // Is the session currently paused?
+  pausedAt  DateTime? // When was the session paused?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([startTime])
+  @@index([completed])
+  @@index([userId, startTime])
+}
+
+// PlannedBlock model - Scheduled deep work blocks
+model PlannedBlock {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title     String   // What the user plans to work on
+  dayOfWeek Int      // 0-6 (Sunday to Saturday)
+  startTime String   // Time in HH:MM format (e.g., "09:00")
+  duration  Int      // Duration in minutes
+
+  isRecurring Boolean  @default(false) // Does this repeat weekly?
+  isActive    Boolean  @default(true)  // Is this block still active?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([userId, dayOfWeek])
+  @@index([isActive])
+}

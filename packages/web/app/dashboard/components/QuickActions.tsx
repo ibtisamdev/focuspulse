@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Plus, Clock, BarChart3, Settings, Calendar } from 'lucide-react'
+import { Plus, Clock, Calendar } from 'lucide-react'
 
 interface QuickAction {
   title: string
@@ -32,13 +32,7 @@ export function QuickActions() {
       title: 'Start Timer',
       description: 'Begin focus session',
       icon: <Clock className="h-[18px] w-[18px] text-zinc-400" />,
-      onClick: () => console.log('Start timer clicked'),
-    },
-    {
-      title: 'View Analytics',
-      description: 'Check your stats',
-      icon: <BarChart3 className="h-[18px] w-[18px] text-zinc-400" />,
-      onClick: () => router.push('/dashboard/analytics'),
+      onClick: () => router.push('/dashboard/session'),
     },
   ]
 

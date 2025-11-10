@@ -149,3 +149,69 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom animations for Active Session Timer */
+
+/* Breathing/pulse animation for timer */
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+.animate-breathe {
+  animation: breathe 4s ease-in-out infinite;
+}
+
+/* Subtle glow effect on timer circle */
+@keyframes glow {
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(113, 113, 122, 0.1),
+      0 0 40px rgba(113, 113, 122, 0.05);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(113, 113, 122, 0.15),
+      0 0 60px rgba(113, 113, 122, 0.08);
+  }
+}
+
+.animate-glow {
+  animation: glow 3s ease-in-out infinite;
+}
+
+/* Progress ring rotation animation */
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-rotate {
+  animation: rotate 60s linear infinite;
+}
+
+/* Fade in animation on load */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.8s ease-out;
+}
