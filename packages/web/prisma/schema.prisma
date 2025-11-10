@@ -1,0 +1,44 @@
+// Prisma Schema for FocusPulse
+// Documentation: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model - synced with Clerk authentication
+model User {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique // Clerk user ID
+  email     String   @unique
+  firstName String?
+  lastName  String?
+  imageUrl  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations will be added here as the app grows
+  // Example: sessions Session[]
+
+  @@index([clerkId])
+  @@index([email])
+}
+
+// Example model - Session tracking (optional)
+// model Session {
+//   id        String   @id @default(cuid())
+//   userId    String
+//   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+//   startTime DateTime @default(now())
+//   endTime   DateTime?
+//   duration  Int?     // in seconds
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+//
+//   @@index([userId])
+//   @@index([startTime])
+// }
