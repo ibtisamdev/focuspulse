@@ -1,0 +1,17 @@
+{
+  "name": "focuspulse",
+  "private": true,
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "dev": "bun run --filter '*' dev",
+    "dev:web": "bun run --filter @focuspulse/web dev",
+    "build": "bun run --filter '*' build",
+    "build:web": "bun run --filter @focuspulse/web build",
+    "start:web": "bun run --filter @focuspulse/web start",
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/bun": "latest"
+  }
+}

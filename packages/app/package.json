@@ -1,0 +1,17 @@
+{
+  "name": "@focuspulse/app",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun run index.ts",
+    "build": "bun build ./index.ts --outdir ./dist"
+  },
+  "dependencies": {
+    "@focuspulse/ui": "workspace:*",
+    "@focuspulse/utils": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
