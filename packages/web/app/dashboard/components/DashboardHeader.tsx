@@ -2,23 +2,61 @@
 
 import { UserButton } from '@clerk/nextjs'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Bell } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 export function DashboardHeader() {
+  const pathname = usePathname()
+
+  const isActive = (path: string) => {
+    if (path === '/dashboard') {
+      return pathname === path
+    }
+    return pathname?.startsWith(path)
+  }
+
   return (
     <nav className="border-b border-zinc-800 bg-[#09090b]">
       <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
         <div className="flex items-center gap-8">
           <div className="text-lg font-semibold text-zinc-50">FocusPulse</div>
           <div className="hidden md:flex items-center gap-6 text-sm">
-            <Link href="/dashboard" className="text-zinc-50 hover:text-zinc-300 transition-colors">
+            <Link
+              href="/dashboard"
+              className={cn(
+                'transition-colors',
+                isActive('/dashboard') ? 'text-zinc-50' : 'text-zinc-400 hover:text-zinc-300'
+              )}
+            >
               Dashboard
             </Link>
-            <Link href="/dashboard/analytics" className="text-zinc-400 hover:text-zinc-300 transition-colors">
+            <Link
+              href="/dashboard/planner"
+              className={cn(
+                'transition-colors',
+                isActive('/dashboard/planner') ? 'text-zinc-50' : 'text-zinc-400 hover:text-zinc-300'
+              )}
+            >
+              Planner
+            </Link>
+            <Link
+              href="/dashboard/analytics"
+              className={cn(
+                'transition-colors',
+                isActive('/dashboard/analytics') ? 'text-zinc-50' : 'text-zinc-400 hover:text-zinc-300'
+              )}
+            >
               Analytics
             </Link>
-            <Link href="/dashboard/settings" className="text-zinc-400 hover:text-zinc-300 transition-colors">
+            <Link
+              href="/dashboard/settings"
+              className={cn(
+                'transition-colors',
+                isActive('/dashboard/settings') ? 'text-zinc-50' : 'text-zinc-400 hover:text-zinc-300'
+              )}
+            >
               Settings
             </Link>
           </div>

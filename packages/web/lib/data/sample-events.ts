@@ -1,0 +1,201 @@
+import { PlannerEvent } from '../types/planner';
+
+/**
+ * Sample events for demonstration purposes
+ * These events cover the current week (Nov 10 - Nov 16, 2025)
+ */
+export const sampleEvents: PlannerEvent[] = [
+  // Monday, Nov 10
+  {
+    id: '1',
+    title: 'Team Standup',
+    description: 'Daily team sync',
+    startTime: '09:00',
+    endTime: '09:30',
+    date: '2025-11-10',
+    color: 'blue',
+    category: 'meeting',
+  },
+  {
+    id: '2',
+    title: 'Deep Work Session',
+    description: 'Focus on feature development',
+    startTime: '10:00',
+    endTime: '12:00',
+    date: '2025-11-10',
+    color: 'purple',
+    category: 'work',
+  },
+  {
+    id: '3',
+    title: 'Lunch Break',
+    description: '',
+    startTime: '12:00',
+    endTime: '13:00',
+    date: '2025-11-10',
+    color: 'zinc',
+    category: 'break',
+  },
+  {
+    id: '4',
+    title: 'Client Meeting',
+    description: 'Project review and feedback',
+    startTime: '14:00',
+    endTime: '15:30',
+    date: '2025-11-10',
+    color: 'green',
+    category: 'meeting',
+  },
+  {
+    id: '5',
+    title: 'Code Review',
+    description: '',
+    startTime: '16:00',
+    endTime: '17:00',
+    date: '2025-11-10',
+    color: 'orange',
+    category: 'review',
+  },
+
+  // Tuesday, Nov 11
+  {
+    id: '6',
+    title: 'Team Standup',
+    description: 'Daily team sync',
+    startTime: '09:00',
+    endTime: '09:30',
+    date: '2025-11-11',
+    color: 'blue',
+    category: 'meeting',
+  },
+  {
+    id: '7',
+    title: 'Sprint Planning',
+    description: 'Plan next sprint tasks',
+    startTime: '10:00',
+    endTime: '11:30',
+    date: '2025-11-11',
+    color: 'green',
+    category: 'meeting',
+  },
+  {
+    id: '8',
+    title: 'Development Work',
+    description: 'Work on backend API',
+    startTime: '13:00',
+    endTime: '16:00',
+    date: '2025-11-11',
+    color: 'purple',
+    category: 'work',
+  },
+
+  // Wednesday, Nov 12
+  {
+    id: '9',
+    title: 'Team Standup',
+    description: 'Daily team sync',
+    startTime: '09:00',
+    endTime: '09:30',
+    date: '2025-11-12',
+    color: 'blue',
+    category: 'meeting',
+  },
+  {
+    id: '10',
+    title: 'Design Review',
+    description: 'Review UI/UX mockups',
+    startTime: '11:00',
+    endTime: '12:00',
+    date: '2025-11-12',
+    color: 'orange',
+    category: 'review',
+  },
+  {
+    id: '11',
+    title: 'User Testing',
+    description: 'Conduct user interviews',
+    startTime: '14:00',
+    endTime: '15:30',
+    date: '2025-11-12',
+    color: 'green',
+    category: 'meeting',
+  },
+  {
+    id: '12',
+    title: 'Feature Implementation',
+    description: 'Build new dashboard feature',
+    startTime: '16:00',
+    endTime: '18:00',
+    date: '2025-11-12',
+    color: 'purple',
+    category: 'work',
+  },
+
+  // Thursday, Nov 13
+  {
+    id: '13',
+    title: 'Team Standup',
+    description: 'Daily team sync',
+    startTime: '09:00',
+    endTime: '09:30',
+    date: '2025-11-13',
+    color: 'blue',
+    category: 'meeting',
+  },
+  {
+    id: '14',
+    title: 'One-on-One',
+    description: 'Meeting with manager',
+    startTime: '14:00',
+    endTime: '15:00',
+    date: '2025-11-13',
+    color: 'green',
+    category: 'meeting',
+  },
+
+  // Friday, Nov 14
+  {
+    id: '15',
+    title: 'Team Standup',
+    description: 'Daily team sync',
+    startTime: '09:00',
+    endTime: '09:30',
+    date: '2025-11-14',
+    color: 'blue',
+    category: 'meeting',
+  },
+  {
+    id: '16',
+    title: 'Bug Fixes',
+    description: 'Address production issues',
+    startTime: '10:00',
+    endTime: '12:00',
+    date: '2025-11-14',
+    color: 'purple',
+    category: 'work',
+  },
+  {
+    id: '17',
+    title: 'Sprint Retrospective',
+    description: 'Reflect on sprint progress',
+    startTime: '15:00',
+    endTime: '16:00',
+    date: '2025-11-14',
+    color: 'orange',
+    category: 'meeting',
+  },
+
+  // Saturday, Nov 15
+  {
+    id: '18',
+    title: 'Personal Project',
+    description: 'Work on side project',
+    startTime: '10:00',
+    endTime: '12:00',
+    date: '2025-11-15',
+    color: 'green',
+    category: 'personal',
+  },
+
+  // Sunday, Nov 16 - No events
+];
