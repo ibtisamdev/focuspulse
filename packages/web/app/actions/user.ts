@@ -9,7 +9,6 @@
 
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
-import { revalidatePath } from 'next/cache'
 
 /**
  * Sync user from Clerk to the database
@@ -57,7 +56,6 @@ export async function syncUser() {
       })
     }
 
-    revalidatePath('/dashboard')
     return { success: true }
   } catch (error) {
     console.error('Error syncing user:', error)
