@@ -1,7 +1,10 @@
-import { auth, currentUser } from '@clerk/nextjs/server'
-import { UserButton } from '@clerk/nextjs'
+import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { syncUser, getCurrentUser } from '@/app/actions/user'
+import { StatsCards } from './components/StatsCards'
+import { WeeklyActivity } from './components/WeeklyActivity'
+import { RecentTasks } from './components/RecentTasks'
+import { QuickActions } from './components/QuickActions'
 
 /**
  * Dashboard Page (Protected Route)
@@ -17,17 +20,37 @@ export default async function DashboardPage() {
     redirect('/sign-in')
   }
 
-  // Get user info from Clerk
-  const clerkUser = await currentUser()
-
   // Sync user to database (creates or updates)
   await syncUser()
 
-  // Get user from database
-  const { user: dbUser } = await getCurrentUser()
+  // Get user from database (available for future use)
+  await getCurrentUser()
 
   return (
-    <div>
-    </div>
+    <main className="max-w-4xl mx-auto px-6 py-8">
+      {/* Header Section */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-semibold text-zinc-50 mb-2">Dashboard</h1>
+        <p className="text-sm text-zinc-400">Track your productivity and focus metrics</p>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="mb-8">
+        <StatsCards />
+      </div>
+
+      {/* Activity Card */}
+      <div className="mb-8">
+        <WeeklyActivity />
+      </div>
+
+      {/* Recent Tasks */}
+      <div className="mb-8">
+        <RecentTasks />
+      </div>
+
+      {/* Quick Actions */}
+      <QuickActions />
+    </main>
   )
 }
