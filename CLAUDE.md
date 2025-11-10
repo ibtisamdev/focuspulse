@@ -6,6 +6,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 FocusPulse is a Bun-based TypeScript monorepo with four packages. It uses Bun's native workspace support for fast development and minimal configuration.
 
+## Tech Stack
+
+The primary application (`@focuspulse/web`) uses:
+- **Framework**: Next.js 16 with App Router (Server Components + Server Actions)
+- **Database**: Neon (PostgreSQL) with Prisma
+- **Authentication**: Clerk
+- **Deployment**: Vercel
+- **Styling**: Tailwind CSS 4
+
+**Architecture Pattern**: Server-first with no API routes - all backend logic uses Server Actions.
+
+For detailed tech stack documentation, architecture patterns, and development guidelines, see [packages/docs/tech-stack.md](./packages/docs/tech-stack.md).
+
+## UI Component Guidelines
+
+**IMPORTANT**: When building UI for the `@focuspulse/web` package:
+- **ONLY use ShadCN components** from https://ui.shadcn.com/
+- **DO NOT create custom UI components** - always use ShadCN components as the source
+- Install components using the ShadCN CLI: `npx shadcn@latest add <component-name>`
+- ShadCN components should be installed in the `packages/web` directory
+- All UI should follow ShadCN's design system and component patterns
+
 ## Common Development Commands
 
 ### Essential Commands
