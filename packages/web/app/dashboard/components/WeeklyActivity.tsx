@@ -2,23 +2,22 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 
-interface ActivityData {
+interface WeeklyActivityData {
   day: string
-  hours: string
-  percentage: number
+  hours: number
+  date: string
 }
 
-const activityData: ActivityData[] = [
-  { day: 'Mon', hours: '5.2h', percentage: 85 },
-  { day: 'Tue', hours: '5.8h', percentage: 92 },
-  { day: 'Wed', hours: '4.9h', percentage: 78 },
-  { day: 'Thu', hours: '5.5h', percentage: 88 },
-  { day: 'Fri', hours: '6.1h', percentage: 95 },
-  { day: 'Sat', hours: '2.8h', percentage: 45 },
-  { day: 'Sun', hours: '2.4h', percentage: 38 },
-]
+interface WeeklyActivityProps {
+  weeklyData: WeeklyActivityData[]
+  weeklyGoalHours?: number
+}
 
-export function WeeklyActivity() {
+export function WeeklyActivity({ weeklyData, weeklyGoalHours = 12 }: WeeklyActivityProps) {
+  // Calculate daily goal (weekly goal / 7 days, with focus on weekdays)
+  // Assume 5 working days, so divide by 5 for a more realistic daily target
+  const dailyTargetHours = weeklyGoalHours / 5
+
   return (
     <Card className="bg-[#18181b] border-zinc-800">
       <CardHeader className="p-6 pb-4">
@@ -29,24 +28,30 @@ export function WeeklyActivity() {
             size="sm"
             className="text-xs text-zinc-400 hover:text-zinc-300 border-zinc-800 hover:bg-zinc-800/50 h-auto px-3 py-1.5"
           >
-            Last 7 days
+            This week
           </Button>
         </div>
       </CardHeader>
       <CardContent className="p-6 pt-2">
         <div className="space-y-4">
-          {activityData.map((item) => (
-            <div key={item.day} className="flex items-center gap-4">
-              <span className="text-xs text-zinc-400 w-12">{item.day}</span>
-              <div className="flex-1">
-                <Progress
-                  value={item.percentage}
-                  className="h-8 bg-zinc-900 border border-zinc-800"
-                />
+          {weeklyData.map((item) => {
+            // Calculate percentage based on daily target
+            const percentage = Math.min((item.hours / dailyTargetHours) * 100, 100)
+            const hoursDisplay = item.hours > 0 ? `${item.hours.toFixed(1)}h` : '0h'
+
+            return (
+              <div key={item.day} className="flex items-center gap-4">
+                <span className="text-xs text-zinc-400 w-12">{item.day}</span>
+                <div className="flex-1">
+                  <Progress
+                    value={percentage}
+                    className="h-8 bg-zinc-900 border border-zinc-800"
+                  />
+                </div>
+                <span className="text-xs text-zinc-400 w-12 text-right">{hoursDisplay}</span>
               </div>
-              <span className="text-xs text-zinc-400 w-12 text-right">{item.hours}</span>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </CardContent>
     </Card>

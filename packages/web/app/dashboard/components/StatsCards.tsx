@@ -1,5 +1,5 @@
 import { Card, CardContent } from '@/components/ui/card'
-import { Clock, CheckCircle, Flame } from 'lucide-react'
+import { Clock, Target, Flame } from 'lucide-react'
 
 interface StatCardProps {
   title: string
@@ -23,25 +23,32 @@ function StatCard({ title, value, change, icon }: StatCardProps) {
   )
 }
 
-export function StatsCards() {
+interface StatsCardsProps {
+  focusTime: string
+  sessionsToday: number
+  streak: number
+  target?: string
+}
+
+export function StatsCards({ focusTime, sessionsToday, streak, target = "12h" }: StatsCardsProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <StatCard
-        title="Focus Time"
-        value="4h 32m"
-        change="+12% from last week"
+        title="Focus Time Today"
+        value={focusTime || "0m"}
+        change={`Weekly goal: ${target}`}
         icon={<Clock className="h-4 w-4 text-zinc-400" />}
       />
       <StatCard
-        title="Tasks Done"
-        value="24"
-        change="8 remaining today"
-        icon={<CheckCircle className="h-4 w-4 text-zinc-400" />}
+        title="Sessions Today"
+        value={sessionsToday.toString()}
+        change={sessionsToday === 0 ? "Start your first session" : `${sessionsToday} completed`}
+        icon={<Target className="h-4 w-4 text-zinc-400" />}
       />
       <StatCard
         title="Streak"
-        value="7 days"
-        change="Keep it up!"
+        value={`${streak} ${streak === 1 ? 'day' : 'days'}`}
+        change={streak > 0 ? "Keep it up!" : "Start a session today!"}
         icon={<Flame className="h-4 w-4 text-zinc-400" />}
       />
     </div>
