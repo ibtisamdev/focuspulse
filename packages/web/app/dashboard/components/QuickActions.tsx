@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { ActionButton } from '@/components/ui/action-button'
 import { Plus, Clock, Calendar } from 'lucide-react'
 
 interface QuickAction {
@@ -44,20 +44,13 @@ export function QuickActions() {
       <CardContent className="p-6 pt-2">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {actions.map((action) => (
-            <Button
+            <ActionButton
               key={action.title}
-              variant="outline"
-              className="h-auto p-4 justify-start gap-3 border-zinc-800 hover:bg-zinc-800/50 bg-transparent"
+              icon={action.icon}
+              title={action.title}
+              description={action.description}
               onClick={action.onClick}
-            >
-              <div className="h-10 w-10 rounded-md bg-zinc-900 border border-zinc-800 flex items-center justify-center shrink-0">
-                {action.icon}
-              </div>
-              <div className="text-left">
-                <p className="text-sm font-medium text-zinc-50">{action.title}</p>
-                <p className="text-xs text-zinc-500 font-normal">{action.description}</p>
-              </div>
-            </Button>
+            />
           ))}
         </div>
       </CardContent>

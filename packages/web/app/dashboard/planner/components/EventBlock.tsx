@@ -58,6 +58,7 @@ export function EventBlock({ event, onClick }: EventBlockProps) {
         'absolute left-16 right-0 rounded-md border px-2 py-1.5',
         'cursor-pointer transition-all duration-200',
         'hover:opacity-90 hover:-translate-x-0.5',
+        'overflow-hidden',
         colors.bg,
         colors.border
       )}
@@ -68,16 +69,29 @@ export function EventBlock({ event, onClick }: EventBlockProps) {
       }}
       onClick={handleClick}
     >
-      <div className={cn('text-xs font-medium', colors.text)}>
-        {event.title}
-      </div>
-      <div className={cn('text-[10px] mt-0.5', colors.subtext)}>
-        {formatTimeRange(event.startTime, event.endTime)}
-      </div>
-      {event.description && height > 60 && (
-        <div className={cn('text-[10px] mt-1', colors.subtext, 'opacity-50')}>
-          {event.description}
+      {height <= 45 ? (
+        // Compact view: title and time on same line for small events
+        <div className={cn('text-xs font-medium truncate', colors.text)}>
+          {event.title}
+          <span className={cn('ml-2 font-normal', colors.subtext)}>
+            {formatTimeRange(event.startTime, event.endTime)}
+          </span>
         </div>
+      ) : (
+        // Full view: title and time on separate lines
+        <>
+          <div className={cn('text-xs font-medium truncate', colors.text)}>
+            {event.title}
+          </div>
+          <div className={cn('text-[10px] mt-0.5', colors.subtext)}>
+            {formatTimeRange(event.startTime, event.endTime)}
+          </div>
+          {event.description && height > 60 && (
+            <div className={cn('text-[10px] mt-1', colors.subtext, 'opacity-50')}>
+              {event.description}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

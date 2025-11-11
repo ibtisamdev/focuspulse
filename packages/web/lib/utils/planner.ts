@@ -81,13 +81,13 @@ export function getNextWeek(currentWeek: WeekData): WeekData {
 }
 
 /**
- * Generates time slots for the timeline (8 AM to 10 PM)
+ * Generates time slots for the timeline (24 hours: 12 AM to 11 PM)
  */
 export function generateTimeSlots(): TimeSlot[] {
   const slots: TimeSlot[] = [];
-  for (let hour = 8; hour <= 22; hour++) {
+  for (let hour = 0; hour <= 23; hour++) {
     const isPM = hour >= 12;
-    const displayHour = hour > 12 ? hour - 12 : hour;
+    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
     const period = isPM ? 'PM' : 'AM';
     slots.push({
       hour,
@@ -112,7 +112,7 @@ export function timeToMinutes(time: string): number {
 export function calculateEventPosition(
   startTime: string,
   endTime: string,
-  timelineStartHour: number = 8
+  timelineStartHour: number = 0
 ): { top: number; height: number } {
   const startMinutes = timeToMinutes(startTime);
   const endMinutes = timeToMinutes(endTime);
@@ -157,8 +157,8 @@ export function calculateDaySummary(events: PlannerEvent[], date: string): DaySu
     scheduledMinutes += (end - start);
   });
 
-  // Assuming working day is 8 AM to 10 PM (14 hours = 840 minutes)
-  const totalDayMinutes = 14 * 60;
+  // Full 24-hour day (24 hours = 1440 minutes)
+  const totalDayMinutes = 24 * 60;
   const freeMinutes = totalDayMinutes - scheduledMinutes;
 
   return {

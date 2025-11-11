@@ -36,6 +36,7 @@ export function TimelineView({ selectedDate, events, onEventClick }: TimelineVie
 
       {/* Timeline Grid */}
       <div className="space-y-0 relative">
+        {/* Time slot grid for visual structure */}
         {timeSlots.map((slot, index) => {
           const isLastSlot = index === timeSlots.length - 1;
 
@@ -49,25 +50,27 @@ export function TimelineView({ selectedDate, events, onEventClick }: TimelineVie
                 {slot.label}
               </div>
 
-              {/* Event Container */}
-              <div className="flex-1 relative">
-                {/* Render events that start in this hour */}
-                {dayEvents
-                  .filter(event => {
-                    const eventHour = parseInt(event.startTime.split(':')[0]);
-                    return eventHour === slot.hour;
-                  })
-                  .map(event => (
-                    <EventBlock
-                      key={event.id}
-                      event={event}
-                      onClick={onEventClick}
-                    />
-                  ))}
-              </div>
+              {/* Empty space for timeline */}
+              <div className="flex-1 relative"></div>
             </div>
           );
         })}
+
+        {/* Events container - absolute positioned over the entire timeline */}
+        <div
+          className="absolute top-0 left-0 right-0 pointer-events-none"
+          style={{ height: `${timeSlots.length * 60}px` }}
+        >
+          <div className="relative h-full pointer-events-auto">
+            {dayEvents.map(event => (
+              <EventBlock
+                key={event.id}
+                event={event}
+                onClick={onEventClick}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
