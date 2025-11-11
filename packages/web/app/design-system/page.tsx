@@ -13,7 +13,7 @@ import { CheckCircle, Clock, Flame, Calendar, Plus } from "lucide-react";
 
 export default function DesignSystemPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#09090b]">
       <div className="max-w-6xl mx-auto p-8">
         {/* Header */}
         <div className="mb-12">
