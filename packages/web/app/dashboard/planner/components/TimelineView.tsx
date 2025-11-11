@@ -9,12 +9,32 @@ interface TimelineViewProps {
   selectedDate: string;
   events: PlannerEvent[];
   onEventClick?: (event: PlannerEvent) => void;
+  onAddEvent?: (time?: string, day?: number) => void;
+  onDeleteEvent?: (event: PlannerEvent) => void;
+  onStartSession?: (event: PlannerEvent) => void;
 }
 
-export function TimelineView({ selectedDate, events, onEventClick }: TimelineViewProps) {
+export function TimelineView({
+  selectedDate,
+  events,
+  onEventClick,
+  onAddEvent,
+  onDeleteEvent,
+  onStartSession
+}: TimelineViewProps) {
   const timeSlots = generateTimeSlots();
   const dayEvents = getEventsForDate(events, selectedDate);
   const isToday = selectedDate === getTodayISODate();
+
+  // Get day of week from selected date
+  const selectedDayOfWeek = new Date(selectedDate + 'T00:00:00').getDay();
+
+  const handleTimeSlotClick = (hour: number) => {
+    if (onAddEvent) {
+      const timeString = `${String(hour).padStart(2, '0')}:00`;
+      onAddEvent(timeString, selectedDayOfWeek);
+    }
+  };
 
   return (
     <div className="bg-[#18181b] border border-zinc-800 rounded-lg p-6">
@@ -50,8 +70,12 @@ export function TimelineView({ selectedDate, events, onEventClick }: TimelineVie
                 {slot.label}
               </div>
 
-              {/* Empty space for timeline */}
-              <div className="flex-1 relative"></div>
+              {/* Clickable time slot area */}
+              <div
+                className="flex-1 relative cursor-pointer hover:bg-zinc-800/20 transition-colors rounded-sm"
+                onClick={() => handleTimeSlotClick(slot.hour)}
+                title="Click to add event"
+              ></div>
             </div>
           );
         })}
@@ -67,6 +91,8 @@ export function TimelineView({ selectedDate, events, onEventClick }: TimelineVie
                 key={event.id}
                 event={event}
                 onClick={onEventClick}
+                onDelete={onDeleteEvent}
+                onStartSession={onStartSession}
               />
             ))}
           </div>
