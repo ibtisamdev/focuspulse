@@ -62,13 +62,13 @@ const FocusSVG = () => (
   </svg>
 )
 
-// Background SVG patterns - More creative and visible
+// Background SVG patterns - Highly visible and creative
 const GridBackground = () => (
   <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
-        <path d="M 80 0 L 0 0 0 80" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="0.5"/>
-        <circle cx="0" cy="0" r="1.5" fill="rgba(255,255,255,0.1)" />
+      <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
+        <path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1"/>
+        <circle cx="0" cy="0" r="2" fill="rgba(255,255,255,0.15)" />
       </pattern>
     </defs>
     <rect width="100%" height="100%" fill="url(#grid)" />
@@ -78,30 +78,30 @@ const GridBackground = () => (
 const FloatingShapes = () => (
   <div className="absolute inset-0 overflow-hidden pointer-events-none">
     {/* Top right geometric shape */}
-    <svg className="absolute -top-40 -right-40 w-[500px] h-[500px] opacity-[0.15]" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M250 50 L400 150 L350 300 L150 350 L100 200 Z" stroke="rgba(255,255,255,0.3)" strokeWidth="1" fill="rgba(255,255,255,0.02)" />
-      <circle cx="250" cy="250" r="120" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
-      <rect x="180" y="180" width="140" height="140" stroke="rgba(255,255,255,0.2)" strokeWidth="1" fill="none" transform="rotate(45 250 250)" />
+    <svg className="absolute -top-40 -right-40 w-[500px] h-[500px]" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M250 50 L400 150 L350 300 L150 350 L100 200 Z" stroke="rgba(255,255,255,0.5)" strokeWidth="2" fill="rgba(255,255,255,0.05)" />
+      <circle cx="250" cy="250" r="120" stroke="rgba(255,255,255,0.4)" strokeWidth="2" />
+      <rect x="180" y="180" width="140" height="140" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" fill="none" transform="rotate(45 250 250)" />
     </svg>
 
     {/* Bottom left abstract waves */}
-    <svg className="absolute -bottom-32 -left-32 w-[600px] h-[400px] opacity-[0.12]" viewBox="0 0 600 400" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0 200 Q150 100 300 200 T600 200" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" />
-      <path d="M0 240 Q150 140 300 240 T600 240" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
-      <path d="M0 280 Q150 180 300 280 T600 280" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
+    <svg className="absolute -bottom-32 -left-32 w-[600px] h-[400px]" viewBox="0 0 600 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 200 Q150 100 300 200 T600 200" stroke="rgba(255,255,255,0.5)" strokeWidth="3" />
+      <path d="M0 240 Q150 140 300 240 T600 240" stroke="rgba(255,255,255,0.35)" strokeWidth="2" />
+      <path d="M0 280 Q150 180 300 280 T600 280" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" />
     </svg>
 
     {/* Center floating circles */}
-    <svg className="absolute top-1/3 left-1/4 w-[300px] h-[300px] opacity-[0.08]" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="150" cy="150" r="80" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeDasharray="5 5" />
-      <circle cx="150" cy="150" r="120" stroke="rgba(255,255,255,0.2)" strokeWidth="1" strokeDasharray="3 3" />
+    <svg className="absolute top-1/3 left-1/4 w-[300px] h-[300px]" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="150" cy="150" r="80" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeDasharray="5 5" />
+      <circle cx="150" cy="150" r="120" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeDasharray="3 3" />
     </svg>
 
     {/* Right side vertical lines pattern */}
-    <svg className="absolute top-1/4 right-20 w-[200px] h-[600px] opacity-[0.1]" viewBox="0 0 200 600" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <line x1="50" y1="0" x2="50" y2="600" stroke="rgba(255,255,255,0.3)" strokeWidth="2" />
-      <line x1="100" y1="100" x2="100" y2="500" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" />
-      <line x1="150" y1="50" x2="150" y2="550" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
+    <svg className="absolute top-1/4 right-20 w-[200px] h-[600px]" viewBox="0 0 200 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <line x1="50" y1="0" x2="50" y2="600" stroke="rgba(255,255,255,0.5)" strokeWidth="3" />
+      <line x1="100" y1="100" x2="100" y2="500" stroke="rgba(255,255,255,0.4)" strokeWidth="2" />
+      <line x1="150" y1="50" x2="150" y2="550" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" />
     </svg>
   </div>
 )
@@ -109,12 +109,12 @@ const FloatingShapes = () => (
 const FocusRings = () => (
   <div className="absolute inset-0 overflow-hidden pointer-events-none">
     {/* Large focus rings - symbolizing concentration */}
-    <svg className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/3 w-[800px] h-[800px] opacity-[0.08]" viewBox="0 0 800 800" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="400" cy="400" r="150" stroke="rgba(255,255,255,0.4)" strokeWidth="2" />
-      <circle cx="400" cy="400" r="200" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" />
-      <circle cx="400" cy="400" r="250" stroke="rgba(255,255,255,0.25)" strokeWidth="1" />
-      <circle cx="400" cy="400" r="300" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
-      <circle cx="400" cy="400" r="350" stroke="rgba(255,255,255,0.15)" strokeWidth="0.5" />
+    <svg className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/3 w-[800px] h-[800px]" viewBox="0 0 800 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="400" cy="400" r="150" stroke="rgba(255,255,255,0.6)" strokeWidth="3" />
+      <circle cx="400" cy="400" r="200" stroke="rgba(255,255,255,0.5)" strokeWidth="2.5" />
+      <circle cx="400" cy="400" r="250" stroke="rgba(255,255,255,0.4)" strokeWidth="2" />
+      <circle cx="400" cy="400" r="300" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" />
+      <circle cx="400" cy="400" r="350" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
     </svg>
   </div>
 )
@@ -122,12 +122,12 @@ const FocusRings = () => (
 const TimerArcs = () => (
   <div className="absolute inset-0 overflow-hidden pointer-events-none">
     {/* Timer/clock inspired arcs */}
-    <svg className="absolute bottom-0 right-0 translate-y-1/4 translate-x-1/4 w-[600px] h-[600px] opacity-[0.12]" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M 300 100 A 200 200 0 0 1 500 300" stroke="rgba(255,255,255,0.4)" strokeWidth="3" strokeLinecap="round" />
-      <path d="M 500 300 A 200 200 0 0 1 300 500" stroke="rgba(255,255,255,0.3)" strokeWidth="2.5" strokeLinecap="round" />
-      <path d="M 300 500 A 200 200 0 0 1 100 300" stroke="rgba(255,255,255,0.25)" strokeWidth="2" strokeLinecap="round" />
-      <path d="M 100 300 A 200 200 0 0 1 300 100" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" strokeLinecap="round" />
-      <circle cx="300" cy="300" r="10" fill="rgba(255,255,255,0.3)" />
+    <svg className="absolute bottom-0 right-0 translate-y-1/4 translate-x-1/4 w-[600px] h-[600px]" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M 300 100 A 200 200 0 0 1 500 300" stroke="rgba(255,255,255,0.6)" strokeWidth="5" strokeLinecap="round" />
+      <path d="M 500 300 A 200 200 0 0 1 300 500" stroke="rgba(255,255,255,0.5)" strokeWidth="4" strokeLinecap="round" />
+      <path d="M 300 500 A 200 200 0 0 1 100 300" stroke="rgba(255,255,255,0.4)" strokeWidth="3" strokeLinecap="round" />
+      <path d="M 100 300 A 200 200 0 0 1 300 100" stroke="rgba(255,255,255,0.3)" strokeWidth="2.5" strokeLinecap="round" />
+      <circle cx="300" cy="300" r="10" fill="rgba(255,255,255,0.5)" />
     </svg>
   </div>
 )
@@ -135,11 +135,11 @@ const TimerArcs = () => (
 const GeometricPattern = () => (
   <div className="absolute inset-0 overflow-hidden pointer-events-none">
     {/* Abstract geometric pattern */}
-    <svg className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-1/3 w-[400px] h-[500px] opacity-[0.1]" viewBox="0 0 400 500" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <polygon points="200,50 350,150 300,300 100,280 80,120" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" fill="none" />
-      <polygon points="150,100 280,180 250,320 120,300 90,160" stroke="rgba(255,255,255,0.25)" strokeWidth="1" fill="none" />
-      <line x1="200" y1="50" x2="200" y2="250" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5" strokeDasharray="4 4" />
-      <line x1="100" y1="180" x2="300" y2="180" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5" strokeDasharray="4 4" />
+    <svg className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-1/3 w-[400px] h-[500px]" viewBox="0 0 400 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="200,50 350,150 300,300 100,280 80,120" stroke="rgba(255,255,255,0.5)" strokeWidth="2.5" fill="none" />
+      <polygon points="150,100 280,180 250,320 120,300 90,160" stroke="rgba(255,255,255,0.4)" strokeWidth="2" fill="none" />
+      <line x1="200" y1="50" x2="200" y2="250" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeDasharray="4 4" />
+      <line x1="100" y1="180" x2="300" y2="180" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeDasharray="4 4" />
     </svg>
   </div>
 )
