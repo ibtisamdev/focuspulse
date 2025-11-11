@@ -17,13 +17,13 @@ export default function DesignSystemPage() {
       <div className="max-w-6xl mx-auto p-8">
         {/* Header */}
         <div className="mb-12">
-          <h1 className="text-5xl font-bold mb-2">FocusPulse</h1>
+          <h1 className="text-5xl font-bold mb-2 text-zinc-50">FocusPulse</h1>
           <p className="text-zinc-400 text-lg">Design System</p>
         </div>
 
         {/* Color Palette */}
         <section className="mb-16">
-          <h2 className="text-3xl font-semibold mb-6">Color Palette</h2>
+          <h2 className="text-3xl font-semibold mb-6 text-zinc-50">Color Palette</h2>
           <p className="text-zinc-400 mb-6 text-sm">
             FocusPulse uses OKLCH color space with a dark-first approach and zinc-based neutrals.
           </p>
@@ -31,28 +31,28 @@ export default function DesignSystemPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
               <div className="h-24 bg-background border border-zinc-800 rounded-lg mb-2"></div>
-              <p className="text-sm font-medium">Background</p>
+              <p className="text-sm font-medium text-zinc-50">Background</p>
               <p className="text-xs text-zinc-500">oklch(0.145 0 0)</p>
             </div>
             <div>
               <div className="h-24 bg-card border border-zinc-800 rounded-lg mb-2"></div>
-              <p className="text-sm font-medium">Card</p>
+              <p className="text-sm font-medium text-zinc-50">Card</p>
               <p className="text-xs text-zinc-500">oklch(0.205 0 0)</p>
             </div>
             <div>
               <div className="h-24 bg-primary rounded-lg mb-2"></div>
-              <p className="text-sm font-medium">Primary</p>
+              <p className="text-sm font-medium text-zinc-50">Primary</p>
               <p className="text-xs text-zinc-500">oklch(0.922 0 0)</p>
             </div>
             <div>
               <div className="h-24 bg-destructive rounded-lg mb-2"></div>
-              <p className="text-sm font-medium">Destructive</p>
+              <p className="text-sm font-medium text-zinc-50">Destructive</p>
               <p className="text-xs text-zinc-500">oklch(0.577 0.245 27.325)</p>
             </div>
           </div>
 
           <div className="mt-6">
-            <p className="text-sm font-medium mb-3">Neutral Scale (Zinc)</p>
+            <p className="text-sm font-medium text-zinc-50 mb-3">Neutral Scale (Zinc)</p>
             <div className="flex gap-2">
               <div className="flex-1 h-12 bg-zinc-950 rounded flex items-center justify-center text-xs">950</div>
               <div className="flex-1 h-12 bg-zinc-900 rounded flex items-center justify-center text-xs">900</div>
@@ -73,30 +73,30 @@ export default function DesignSystemPage() {
 
         {/* Typography */}
         <section className="mb-16">
-          <h2 className="text-3xl font-semibold mb-6">Typography</h2>
+          <h2 className="text-3xl font-semibold mb-6 text-zinc-50">Typography</h2>
           <p className="text-zinc-400 mb-6 text-sm">
             Using Geist Sans and Geist Mono for a modern, readable interface.
           </p>
 
           <div className="space-y-6">
             <div>
-              <h1 className="text-5xl font-bold mb-2">Heading 1</h1>
+              <h1 className="text-5xl font-bold mb-2 text-zinc-50">Heading 1</h1>
               <code className="text-xs text-zinc-500">text-5xl font-bold</code>
             </div>
             <div>
-              <h2 className="text-3xl font-semibold mb-2">Heading 2</h2>
+              <h2 className="text-3xl font-semibold mb-2 text-zinc-50">Heading 2</h2>
               <code className="text-xs text-zinc-500">text-3xl font-semibold</code>
             </div>
             <div>
-              <h3 className="text-2xl font-semibold mb-2">Heading 3</h3>
+              <h3 className="text-2xl font-semibold mb-2 text-zinc-50">Heading 3</h3>
               <code className="text-xs text-zinc-500">text-2xl font-semibold</code>
             </div>
             <div>
-              <h4 className="text-lg font-semibold mb-2">Heading 4</h4>
+              <h4 className="text-lg font-semibold mb-2 text-zinc-50">Heading 4</h4>
               <code className="text-xs text-zinc-500">text-lg font-semibold</code>
             </div>
             <div>
-              <p className="text-sm mb-2">Body text - The quick brown fox jumps over the lazy dog</p>
+              <p className="text-sm mb-2 text-zinc-300">Body text - The quick brown fox jumps over the lazy dog</p>
               <code className="text-xs text-zinc-500">text-sm</code>
             </div>
             <div>
@@ -110,7 +110,7 @@ export default function DesignSystemPage() {
 
         {/* Spacing */}
         <section className="mb-16">
-          <h2 className="text-3xl font-semibold mb-6">Spacing</h2>
+          <h2 className="text-3xl font-semibold mb-6 text-zinc-50">Spacing</h2>
           <p className="text-zinc-400 mb-6 text-sm">
             Consistent spacing using Tailwind's 4px-based scale.
           </p>
@@ -159,7 +159,7 @@ export default function DesignSystemPage() {
 
         {/* Buttons */}
         <section className="mb-16">
-          <h2 className="text-3xl font-semibold mb-6">Buttons</h2>
+          <h2 className="text-3xl font-semibold mb-6 text-zinc-50">Buttons</h2>
           <p className="text-zinc-400 mb-6 text-sm">
             Button variants for different actions and hierarchy.
           </p>
@@ -187,7 +187,7 @@ export default function DesignSystemPage() {
 
         {/* Badges */}
         <section className="mb-16">
-          <h2 className="text-3xl font-semibold mb-6">Badges</h2>
+          <h2 className="text-3xl font-semibold mb-6 text-zinc-50">Badges</h2>
           <p className="text-zinc-400 mb-6 text-sm">
             Inline labels for status and categories.
           </p>
@@ -204,7 +204,7 @@ export default function DesignSystemPage() {
 
         {/* Cards */}
         <section className="mb-16">
-          <h2 className="text-3xl font-semibold mb-6">Cards</h2>
+          <h2 className="text-3xl font-semibold mb-6 text-zinc-50">Cards</h2>
           <p className="text-zinc-400 mb-6 text-sm">
             Container component for grouping related content.
           </p>
@@ -249,18 +249,18 @@ export default function DesignSystemPage() {
 
         {/* Form Inputs */}
         <section className="mb-16">
-          <h2 className="text-3xl font-semibold mb-6">Form Inputs</h2>
+          <h2 className="text-3xl font-semibold mb-6 text-zinc-50">Form Inputs</h2>
           <p className="text-zinc-400 mb-6 text-sm">
             Input components for user interaction.
           </p>
 
           <div className="max-w-md space-y-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">Default Input</label>
+              <label className="text-sm font-medium text-zinc-200 mb-2 block">Default Input</label>
               <Input placeholder="Enter text..." />
             </div>
             <div>
-              <label className="text-sm font-medium mb-2 block">Disabled Input</label>
+              <label className="text-sm font-medium text-zinc-200 mb-2 block">Disabled Input</label>
               <Input placeholder="Disabled" disabled />
             </div>
           </div>
@@ -270,7 +270,7 @@ export default function DesignSystemPage() {
 
         {/* Icons */}
         <section className="mb-16">
-          <h2 className="text-3xl font-semibold mb-6">Icons</h2>
+          <h2 className="text-3xl font-semibold mb-6 text-zinc-50">Icons</h2>
           <p className="text-zinc-400 mb-6 text-sm">
             Using Lucide React icons throughout the application.
           </p>
@@ -303,7 +303,7 @@ export default function DesignSystemPage() {
 
         {/* Design Principles */}
         <section className="mb-16">
-          <h2 className="text-3xl font-semibold mb-6">Design Principles</h2>
+          <h2 className="text-3xl font-semibold mb-6 text-zinc-50">Design Principles</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
