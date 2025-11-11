@@ -62,7 +62,7 @@ const FocusSVG = () => (
   </svg>
 )
 
-// Background SVG patterns - Highly visible and creative
+// Background SVG patterns - Project-relevant and properly positioned
 const GridBackground = () => (
   <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
     <defs>
@@ -75,71 +75,126 @@ const GridBackground = () => (
   </svg>
 )
 
-const FloatingShapes = () => (
+// Animated pulse waves - core brand element
+const PulseWaves = () => (
   <div className="absolute inset-0 overflow-hidden pointer-events-none">
-    {/* Top right geometric shape */}
-    <svg className="absolute -top-40 -right-40 w-[500px] h-[500px]" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M250 50 L400 150 L350 300 L150 350 L100 200 Z" stroke="rgba(255,255,255,0.5)" strokeWidth="2" fill="rgba(255,255,255,0.05)" />
-      <circle cx="250" cy="250" r="120" stroke="rgba(255,255,255,0.4)" strokeWidth="2" />
-      <rect x="180" y="180" width="140" height="140" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" fill="none" transform="rotate(45 250 250)" />
-    </svg>
-
-    {/* Bottom left abstract waves */}
-    <svg className="absolute -bottom-32 -left-32 w-[600px] h-[400px]" viewBox="0 0 600 400" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0 200 Q150 100 300 200 T600 200" stroke="rgba(255,255,255,0.5)" strokeWidth="3" />
-      <path d="M0 240 Q150 140 300 240 T600 240" stroke="rgba(255,255,255,0.35)" strokeWidth="2" />
-      <path d="M0 280 Q150 180 300 280 T600 280" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" />
-    </svg>
-
-    {/* Center floating circles */}
-    <svg className="absolute top-1/3 left-1/4 w-[300px] h-[300px]" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="150" cy="150" r="80" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeDasharray="5 5" />
-      <circle cx="150" cy="150" r="120" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeDasharray="3 3" />
-    </svg>
-
-    {/* Right side vertical lines pattern */}
-    <svg className="absolute top-1/4 right-20 w-[200px] h-[600px]" viewBox="0 0 200 600" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <line x1="50" y1="0" x2="50" y2="600" stroke="rgba(255,255,255,0.5)" strokeWidth="3" />
-      <line x1="100" y1="100" x2="100" y2="500" stroke="rgba(255,255,255,0.4)" strokeWidth="2" />
-      <line x1="150" y1="50" x2="150" y2="550" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" />
+    {/* Top center - animated pulse radiating outward */}
+    <svg className="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] animate-breathe" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="300" cy="300" r="80" stroke="rgba(255,255,255,0.6)" strokeWidth="2" fill="none">
+        <animate attributeName="r" values="80;120;80" dur="4s" repeatCount="indefinite" />
+        <animate attributeName="opacity" values="0.6;0.2;0.6" dur="4s" repeatCount="indefinite" />
+      </circle>
+      <circle cx="300" cy="300" r="120" stroke="rgba(255,255,255,0.5)" strokeWidth="2" fill="none">
+        <animate attributeName="r" values="120;160;120" dur="4s" begin="0.5s" repeatCount="indefinite" />
+        <animate attributeName="opacity" values="0.5;0.15;0.5" dur="4s" begin="0.5s" repeatCount="indefinite" />
+      </circle>
+      <circle cx="300" cy="300" r="160" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" fill="none">
+        <animate attributeName="r" values="160;200;160" dur="4s" begin="1s" repeatCount="indefinite" />
+        <animate attributeName="opacity" values="0.4;0.1;0.4" dur="4s" begin="1s" repeatCount="indefinite" />
+      </circle>
+      <circle cx="300" cy="300" r="200" stroke="rgba(255,255,255,0.3)" strokeWidth="1" fill="none">
+        <animate attributeName="r" values="200;240;200" dur="4s" begin="1.5s" repeatCount="indefinite" />
+        <animate attributeName="opacity" values="0.3;0.05;0.3" dur="4s" begin="1.5s" repeatCount="indefinite" />
+      </circle>
+      {/* Center dot */}
+      <circle cx="300" cy="300" r="8" fill="rgba(255,255,255,0.8)">
+        <animate attributeName="opacity" values="0.8;0.4;0.8" dur="2s" repeatCount="indefinite" />
+      </circle>
     </svg>
   </div>
 )
 
-const FocusRings = () => (
+// Brain waves / EEG-style pattern representing focus
+const BrainWaves = () => (
   <div className="absolute inset-0 overflow-hidden pointer-events-none">
-    {/* Large focus rings - symbolizing concentration */}
-    <svg className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/3 w-[800px] h-[800px]" viewBox="0 0 800 800" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="400" cy="400" r="150" stroke="rgba(255,255,255,0.6)" strokeWidth="3" />
-      <circle cx="400" cy="400" r="200" stroke="rgba(255,255,255,0.5)" strokeWidth="2.5" />
-      <circle cx="400" cy="400" r="250" stroke="rgba(255,255,255,0.4)" strokeWidth="2" />
-      <circle cx="400" cy="400" r="300" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" />
-      <circle cx="400" cy="400" r="350" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
+    {/* Top right - brain wave pattern */}
+    <svg className="absolute top-32 right-10 w-[400px] h-[300px]" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Alpha waves - relaxed focus */}
+      <path d="M 0 150 Q 25 120 50 150 T 100 150 T 150 150 T 200 150 T 250 150 T 300 150 T 350 150 T 400 150"
+            stroke="rgba(255,255,255,0.5)" strokeWidth="2" fill="none" />
+      {/* Beta waves - active concentration */}
+      <path d="M 0 180 Q 15 165 30 180 T 60 180 T 90 180 T 120 180 T 150 180 T 180 180 T 210 180 T 240 180 T 270 180 T 300 180 T 330 180 T 360 180 T 390 180 T 400 180"
+            stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" fill="none" />
+      {/* Theta waves - deep focus */}
+      <path d="M 0 120 Q 35 90 70 120 T 140 120 T 210 120 T 280 120 T 350 120 T 400 120"
+            stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" fill="none" />
     </svg>
   </div>
 )
 
-const TimerArcs = () => (
+// Sound frequency visualization - representing the "pulse"
+const FrequencyBars = () => (
   <div className="absolute inset-0 overflow-hidden pointer-events-none">
-    {/* Timer/clock inspired arcs */}
-    <svg className="absolute bottom-0 right-0 translate-y-1/4 translate-x-1/4 w-[600px] h-[600px]" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M 300 100 A 200 200 0 0 1 500 300" stroke="rgba(255,255,255,0.6)" strokeWidth="5" strokeLinecap="round" />
-      <path d="M 500 300 A 200 200 0 0 1 300 500" stroke="rgba(255,255,255,0.5)" strokeWidth="4" strokeLinecap="round" />
-      <path d="M 300 500 A 200 200 0 0 1 100 300" stroke="rgba(255,255,255,0.4)" strokeWidth="3" strokeLinecap="round" />
-      <path d="M 100 300 A 200 200 0 0 1 300 100" stroke="rgba(255,255,255,0.3)" strokeWidth="2.5" strokeLinecap="round" />
-      <circle cx="300" cy="300" r="10" fill="rgba(255,255,255,0.5)" />
+    {/* Bottom left - audio frequency bars */}
+    <svg className="absolute bottom-32 left-10 w-[350px] h-[250px]" viewBox="0 0 350 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {[...Array(12)].map((_, i) => {
+        const x = i * 30 + 10
+        const baseHeight = 40 + Math.sin(i * 0.8) * 30
+        const delay = `${i * 0.15}s`
+        return (
+          <rect key={i} x={x} y={250 - baseHeight} width="18" height={baseHeight}
+                fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5">
+            <animate attributeName="height"
+                     values={`${baseHeight};${baseHeight + 40};${baseHeight}`}
+                     dur="2s" begin={delay} repeatCount="indefinite" />
+            <animate attributeName="y"
+                     values={`${250 - baseHeight};${250 - baseHeight - 40};${250 - baseHeight}`}
+                     dur="2s" begin={delay} repeatCount="indefinite" />
+          </rect>
+        )
+      })}
     </svg>
   </div>
 )
 
-const GeometricPattern = () => (
+// Neural network nodes - representing focused thinking
+const NeuralNetwork = () => (
   <div className="absolute inset-0 overflow-hidden pointer-events-none">
-    {/* Abstract geometric pattern */}
-    <svg className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-1/3 w-[400px] h-[500px]" viewBox="0 0 400 500" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <polygon points="200,50 350,150 300,300 100,280 80,120" stroke="rgba(255,255,255,0.5)" strokeWidth="2.5" fill="none" />
-      <polygon points="150,100 280,180 250,320 120,300 90,160" stroke="rgba(255,255,255,0.4)" strokeWidth="2" fill="none" />
-      <line x1="200" y1="50" x2="200" y2="250" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeDasharray="4 4" />
-      <line x1="100" y1="180" x2="300" y2="180" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeDasharray="4 4" />
+    {/* Bottom right - neural connection pattern */}
+    <svg className="absolute bottom-20 right-16 w-[400px] h-[400px]" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Connection lines */}
+      <line x1="100" y1="100" x2="200" y2="150" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" strokeDasharray="4 4" />
+      <line x1="200" y1="150" x2="300" y2="100" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" strokeDasharray="4 4" />
+      <line x1="100" y1="100" x2="150" y2="250" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" strokeDasharray="4 4" />
+      <line x1="150" y1="250" x2="250" y2="280" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" strokeDasharray="4 4" />
+      <line x1="250" y1="280" x2="300" y2="100" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" strokeDasharray="4 4" />
+      <line x1="200" y1="150" x2="250" y2="280" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" strokeDasharray="4 4" />
+
+      {/* Nodes */}
+      <circle cx="100" cy="100" r="8" fill="rgba(255,255,255,0.6)" stroke="rgba(255,255,255,0.8)" strokeWidth="2">
+        <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite" />
+      </circle>
+      <circle cx="200" cy="150" r="10" fill="rgba(255,255,255,0.6)" stroke="rgba(255,255,255,0.8)" strokeWidth="2">
+        <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" begin="0.5s" repeatCount="indefinite" />
+      </circle>
+      <circle cx="300" cy="100" r="8" fill="rgba(255,255,255,0.6)" stroke="rgba(255,255,255,0.8)" strokeWidth="2">
+        <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" begin="1s" repeatCount="indefinite" />
+      </circle>
+      <circle cx="150" cy="250" r="9" fill="rgba(255,255,255,0.6)" stroke="rgba(255,255,255,0.8)" strokeWidth="2">
+        <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" begin="1.5s" repeatCount="indefinite" />
+      </circle>
+      <circle cx="250" cy="280" r="10" fill="rgba(255,255,255,0.6)" stroke="rgba(255,255,255,0.8)" strokeWidth="2">
+        <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" begin="2s" repeatCount="indefinite" />
+      </circle>
+    </svg>
+  </div>
+)
+
+// Focus target / concentric circles
+const FocusTarget = () => (
+  <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    {/* Left center - focus target */}
+    <svg className="absolute top-1/2 left-8 -translate-y-1/2 w-[350px] h-[350px]" viewBox="0 0 350 350" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="175" cy="175" r="50" stroke="rgba(255,255,255,0.5)" strokeWidth="2" fill="none" strokeDasharray="8 8">
+        <animateTransform attributeName="transform" type="rotate" from="0 175 175" to="360 175 175" dur="20s" repeatCount="indefinite" />
+      </circle>
+      <circle cx="175" cy="175" r="90" stroke="rgba(255,255,255,0.4)" strokeWidth="2" fill="none" strokeDasharray="12 12">
+        <animateTransform attributeName="transform" type="rotate" from="360 175 175" to="0 175 175" dur="30s" repeatCount="indefinite" />
+      </circle>
+      <circle cx="175" cy="175" r="130" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" fill="none" strokeDasharray="16 16">
+        <animateTransform attributeName="transform" type="rotate" from="0 175 175" to="360 175 175" dur="40s" repeatCount="indefinite" />
+      </circle>
+      <circle cx="175" cy="175" r="6" fill="rgba(255,255,255,0.7)" />
     </svg>
   </div>
 )
@@ -147,9 +202,13 @@ const GeometricPattern = () => (
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-black relative">
-      {/* Background patterns - layered for depth */}
+      {/* Background patterns - layered for depth with project-relevant visuals */}
       <GridBackground />
-      <FloatingShapes />
+      <PulseWaves />
+      <BrainWaves />
+      <FrequencyBars />
+      <NeuralNetwork />
+      <FocusTarget />
 
       {/* Navigation */}
       <nav className="border-b border-zinc-900 relative z-10">
@@ -225,7 +284,6 @@ export default function LandingPage() {
 
       {/* Problem Section */}
       <section className="px-6 py-24 md:py-32 border-t border-zinc-900 relative">
-        <GeometricPattern />
         <div className="max-w-4xl mx-auto relative z-10">
           <h2 className="text-3xl md:text-4xl font-medium text-zinc-50 mb-16 text-center">
             Why deep work is hard
@@ -270,7 +328,6 @@ export default function LandingPage() {
 
       {/* Features Section */}
       <section className="px-6 py-24 md:py-32 border-t border-zinc-900 relative overflow-hidden">
-        <FocusRings />
         <div className="max-w-4xl mx-auto relative z-10">
           <h2 className="text-3xl md:text-4xl font-medium text-zinc-50 mb-16 text-center">
             Everything you need
@@ -391,7 +448,6 @@ export default function LandingPage() {
 
       {/* CTA Section */}
       <section className="px-6 py-24 md:py-32 border-t border-zinc-900 relative overflow-hidden">
-        <TimerArcs />
         <div className="max-w-2xl mx-auto text-center relative z-10">
           <h2 className="text-3xl md:text-5xl font-medium text-zinc-50 mb-6">
             Start building your habit
