@@ -62,11 +62,67 @@ const FocusSVG = () => (
   </svg>
 )
 
+// Background SVG patterns
+const GridBackground = () => (
+  <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.02)" strokeWidth="1"/>
+      </pattern>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#grid)" />
+  </svg>
+)
+
+const DotsBackground = () => (
+  <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <pattern id="dots" width="30" height="30" patternUnits="userSpaceOnUse">
+        <circle cx="2" cy="2" r="1" fill="rgba(255,255,255,0.03)" />
+      </pattern>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#dots)" />
+  </svg>
+)
+
+const CirclesBackground = () => (
+  <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    <svg className="absolute top-0 right-0 w-[600px] h-[600px] -translate-y-1/2 translate-x-1/2" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="300" cy="300" r="200" stroke="rgba(255,255,255,0.02)" strokeWidth="1" />
+      <circle cx="300" cy="300" r="250" stroke="rgba(255,255,255,0.01)" strokeWidth="1" />
+      <circle cx="300" cy="300" r="300" stroke="rgba(255,255,255,0.01)" strokeWidth="1" />
+    </svg>
+    <svg className="absolute bottom-0 left-0 w-[500px] h-[500px] translate-y-1/2 -translate-x-1/2" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="250" cy="250" r="150" stroke="rgba(255,255,255,0.02)" strokeWidth="1" />
+      <circle cx="250" cy="250" r="200" stroke="rgba(255,255,255,0.01)" strokeWidth="1" />
+      <circle cx="250" cy="250" r="250" stroke="rgba(255,255,255,0.01)" strokeWidth="1" />
+    </svg>
+  </div>
+)
+
+const LinesBackground = () => (
+  <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+      <line x1="0" y1="100" x2="1200" y2="100" stroke="rgba(255,255,255,0.02)" strokeWidth="1" />
+      <line x1="0" y1="300" x2="1200" y2="300" stroke="rgba(255,255,255,0.015)" strokeWidth="1" />
+      <line x1="0" y1="500" x2="1200" y2="500" stroke="rgba(255,255,255,0.02)" strokeWidth="1" />
+      <line x1="0" y1="700" x2="1200" y2="700" stroke="rgba(255,255,255,0.015)" strokeWidth="1" />
+      <line x1="200" y1="0" x2="200" y2="800" stroke="rgba(255,255,255,0.015)" strokeWidth="1" />
+      <line x1="600" y1="0" x2="600" y2="800" stroke="rgba(255,255,255,0.02)" strokeWidth="1" />
+      <line x1="1000" y1="0" x2="1000" y2="800" stroke="rgba(255,255,255,0.015)" strokeWidth="1" />
+    </svg>
+  </div>
+)
+
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-black relative">
+      {/* Background patterns - layered for depth */}
+      <GridBackground />
+      <CirclesBackground />
+
       {/* Navigation */}
-      <nav className="border-b border-zinc-900">
+      <nav className="border-b border-zinc-900 relative z-10">
         <div className="max-w-6xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -90,8 +146,8 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="px-6 py-24 md:py-32">
-        <div className="max-w-4xl mx-auto text-center">
+      <section className="px-6 py-24 md:py-32 relative">
+        <div className="max-w-4xl mx-auto text-center relative z-10">
           <h1 className="text-5xl md:text-7xl font-medium text-zinc-50 mb-6 tracking-tight">
             Build a deep work habit
           </h1>
@@ -116,9 +172,9 @@ export default function LandingPage() {
       </section>
 
       {/* Stats Preview */}
-      <section className="px-6 pb-24 md:pb-32">
-        <div className="max-w-4xl mx-auto">
-          <div className="border border-zinc-900 rounded-lg p-8">
+      <section className="px-6 pb-24 md:pb-32 relative">
+        <div className="max-w-4xl mx-auto relative z-10">
+          <div className="border border-zinc-900 rounded-lg p-8 bg-black/50 backdrop-blur-sm">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
               <div>
                 <div className="text-4xl font-medium text-zinc-50 mb-2">15</div>
@@ -138,8 +194,9 @@ export default function LandingPage() {
       </section>
 
       {/* Problem Section */}
-      <section className="px-6 py-24 md:py-32 border-t border-zinc-900">
-        <div className="max-w-4xl mx-auto">
+      <section className="px-6 py-24 md:py-32 border-t border-zinc-900 relative">
+        <LinesBackground />
+        <div className="max-w-4xl mx-auto relative z-10">
           <h2 className="text-3xl md:text-4xl font-medium text-zinc-50 mb-16 text-center">
             Why deep work is hard
           </h2>
@@ -182,8 +239,15 @@ export default function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section className="px-6 py-24 md:py-32 border-t border-zinc-900">
-        <div className="max-w-4xl mx-auto">
+      <section className="px-6 py-24 md:py-32 border-t border-zinc-900 relative overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <svg className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px]" viewBox="0 0 800 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="400" cy="400" r="300" stroke="rgba(255,255,255,0.01)" strokeWidth="1" />
+            <circle cx="400" cy="400" r="350" stroke="rgba(255,255,255,0.008)" strokeWidth="1" />
+            <circle cx="400" cy="400" r="400" stroke="rgba(255,255,255,0.005)" strokeWidth="1" />
+          </svg>
+        </div>
+        <div className="max-w-4xl mx-auto relative z-10">
           <h2 className="text-3xl md:text-4xl font-medium text-zinc-50 mb-16 text-center">
             Everything you need
           </h2>
@@ -229,8 +293,9 @@ export default function LandingPage() {
       </section>
 
       {/* How It Works */}
-      <section className="px-6 py-24 md:py-32 border-t border-zinc-900">
-        <div className="max-w-3xl mx-auto">
+      <section className="px-6 py-24 md:py-32 border-t border-zinc-900 relative">
+        <DotsBackground />
+        <div className="max-w-3xl mx-auto relative z-10">
           <h2 className="text-3xl md:text-4xl font-medium text-zinc-50 mb-16 text-center">
             How it works
           </h2>
@@ -270,8 +335,8 @@ export default function LandingPage() {
       </section>
 
       {/* Target Users */}
-      <section className="px-6 py-24 md:py-32 border-t border-zinc-900">
-        <div className="max-w-4xl mx-auto text-center">
+      <section className="px-6 py-24 md:py-32 border-t border-zinc-900 relative">
+        <div className="max-w-4xl mx-auto text-center relative z-10">
           <h2 className="text-3xl md:text-4xl font-medium text-zinc-50 mb-8">
             Built for knowledge workers
           </h2>
@@ -282,8 +347,8 @@ export default function LandingPage() {
       </section>
 
       {/* Social Proof */}
-      <section className="px-6 py-24 md:py-32 border-t border-zinc-900">
-        <div className="max-w-4xl mx-auto">
+      <section className="px-6 py-24 md:py-32 border-t border-zinc-900 relative">
+        <div className="max-w-4xl mx-auto relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
             <div>
               <div className="text-4xl font-medium text-zinc-50 mb-2">10,000+</div>
@@ -302,8 +367,15 @@ export default function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="px-6 py-24 md:py-32 border-t border-zinc-900">
-        <div className="max-w-2xl mx-auto text-center">
+      <section className="px-6 py-24 md:py-32 border-t border-zinc-900 relative overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <svg className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-[600px] h-[600px]" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="300" cy="300" r="200" stroke="rgba(255,255,255,0.015)" strokeWidth="1" />
+            <circle cx="300" cy="300" r="250" stroke="rgba(255,255,255,0.01)" strokeWidth="1" />
+            <circle cx="300" cy="300" r="300" stroke="rgba(255,255,255,0.008)" strokeWidth="1" />
+          </svg>
+        </div>
+        <div className="max-w-2xl mx-auto text-center relative z-10">
           <h2 className="text-3xl md:text-5xl font-medium text-zinc-50 mb-6">
             Start building your habit
           </h2>
@@ -319,8 +391,8 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-zinc-900 py-12 px-6">
-        <div className="max-w-4xl mx-auto">
+      <footer className="border-t border-zinc-900 py-12 px-6 relative">
+        <div className="max-w-4xl mx-auto relative z-10">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
             <div>
               <div className="flex items-center gap-2 mb-3">
