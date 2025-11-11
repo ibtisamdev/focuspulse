@@ -261,6 +261,35 @@ export function getTodayISODate(): string {
 }
 
 /**
+ * Calculates the current time position in pixels for the timeline
+ * Returns null if not today, otherwise returns pixel position from top
+ */
+export function getCurrentTimePosition(): number | null {
+  const now = new Date();
+  const hours = now.getHours();
+  const minutes = now.getMinutes();
+
+  // Convert current time to minutes since midnight
+  const currentMinutes = hours * 60 + minutes;
+
+  // 1 pixel per minute (60px per hour, matching timeline scale)
+  return currentMinutes;
+}
+
+/**
+ * Gets current time formatted as "h:mm AM/PM"
+ */
+export function getCurrentTimeFormatted(): string {
+  const now = new Date();
+  const hours = now.getHours();
+  const minutes = now.getMinutes();
+  const isPM = hours >= 12;
+  const displayHour = hours > 12 ? hours - 12 : hours === 0 ? 12 : hours;
+  const period = isPM ? 'PM' : 'AM';
+  return `${displayHour}:${minutes.toString().padStart(2, '0')} ${period}`;
+}
+
+/**
  * Formats date to readable string
  */
 export function formatDate(date: Date | string, format: 'long' | 'short' = 'long'): string {

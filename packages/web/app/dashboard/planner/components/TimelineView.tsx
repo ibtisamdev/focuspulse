@@ -1,8 +1,9 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { PlannerEvent } from '@/lib/types/planner';
-import { formatDate, generateTimeSlots, getEventsForDate, getTodayISODate } from '@/lib/utils/planner';
+import { formatDate, generateTimeSlots, getEventsForDate, getTodayISODate, getCurrentTimePosition, getCurrentTimeFormatted } from '@/lib/utils/planner';
 import { EventBlock } from './EventBlock';
 
 interface TimelineViewProps {
@@ -28,6 +29,27 @@ export function TimelineView({
 
   // Get day of week from selected date
   const selectedDayOfWeek = new Date(selectedDate + 'T00:00:00').getDay();
+
+  // Current time position state (updates every minute)
+  const [currentTimePos, setCurrentTimePos] = useState<number | null>(null);
+  const [currentTime, setCurrentTime] = useState<string>('');
+
+  useEffect(() => {
+    if (!isToday) return;
+
+    const updateTime = () => {
+      setCurrentTimePos(getCurrentTimePosition());
+      setCurrentTime(getCurrentTimeFormatted());
+    };
+
+    // Initial update
+    updateTime();
+
+    // Update every minute
+    const interval = setInterval(updateTime, 60000);
+
+    return () => clearInterval(interval);
+  }, [isToday]);
 
   const handleTimeSlotClick = (hour: number) => {
     if (onAddEvent) {
@@ -97,6 +119,20 @@ export function TimelineView({
             ))}
           </div>
         </div>
+
+        {/* Current Time Indicator (only show for today) */}
+        {isToday && currentTimePos !== null && (
+          <div
+            className="absolute left-0 right-0 z-20 flex items-center pointer-events-none"
+            style={{ top: `${currentTimePos}px` }}
+          >
+            <div className="absolute -left-1.5 w-3 h-3 rounded-full bg-zinc-50 border-2 border-zinc-200/50 shadow-lg shadow-zinc-50/80 animate-pulse" />
+            <div className="w-full border-t-2 border-zinc-50/80 shadow-[0_0_15px_rgba(250,250,250,0.4)]" />
+            <div className="absolute left-6 -top-2.5 text-[10px] font-medium text-zinc-50 bg-[#18181b] px-1.5 py-0.5 rounded border border-zinc-50/30">
+              {currentTime}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
