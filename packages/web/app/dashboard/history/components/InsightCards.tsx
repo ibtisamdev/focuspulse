@@ -25,25 +25,37 @@ function InsightCard({ icon, label, value, description }: InsightCardProps) {
   )
 }
 
-export function InsightCards() {
+interface InsightCardsProps {
+  bestDay: {
+    day: string
+    avgHours: number
+  }
+  peakHours: {
+    range: string
+    percentage: number
+  }
+  completionRate: number
+}
+
+export function InsightCards({ bestDay, peakHours, completionRate }: InsightCardsProps) {
   return (
     <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
       <InsightCard
         icon={<Home className="h-4 w-4 text-zinc-400" />}
         label="Best Day"
-        value="Tuesday"
-        description="2.3h avg deep work"
+        value={bestDay.day}
+        description={bestDay.avgHours > 0 ? `${bestDay.avgHours}h avg deep work` : 'No data yet'}
       />
       <InsightCard
         icon={<Clock className="h-4 w-4 text-zinc-400" />}
         label="Peak Hours"
-        value="9-11 AM"
-        description="68% of sessions"
+        value={peakHours.range}
+        description={peakHours.percentage > 0 ? `${peakHours.percentage}% of sessions` : 'No data yet'}
       />
       <InsightCard
         icon={<CheckCircle className="h-4 w-4 text-zinc-400" />}
         label="Completion"
-        value="92%"
+        value={completionRate > 0 ? `${completionRate}%` : '0%'}
         description="Of planned sessions"
       />
     </div>

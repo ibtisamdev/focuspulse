@@ -19,28 +19,35 @@ function StatCard({ icon, label, value }: StatCardProps) {
   )
 }
 
-export function HistoryStatsCards() {
+interface HistoryStatsCardsProps {
+  totalHours: number
+  streak: number
+  sessionCount: number
+  avgLength: number
+}
+
+export function HistoryStatsCards({ totalHours, streak, sessionCount, avgLength }: HistoryStatsCardsProps) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
       <StatCard
         icon={<Clock className="h-3.5 w-3.5 text-zinc-400" />}
         label="Total Hours"
-        value="127h"
+        value={`${totalHours}h`}
       />
       <StatCard
         icon={<Flame className="h-3.5 w-3.5 text-zinc-400" />}
         label="Streak"
-        value="15 days"
+        value={`${streak} ${streak === 1 ? 'day' : 'days'}`}
       />
       <StatCard
         icon={<CheckCircle className="h-3.5 w-3.5 text-zinc-400" />}
         label="Sessions"
-        value="156"
+        value={sessionCount.toString()}
       />
       <StatCard
         icon={<BarChart3 className="h-3.5 w-3.5 text-zinc-400" />}
         label="Avg Length"
-        value="85 min"
+        value={`${avgLength} min`}
       />
     </div>
   )

@@ -2,6 +2,7 @@ import { HistoryStatsCards } from './components/HistoryStatsCards'
 import { WeeklyOverview } from './components/WeeklyOverview'
 import { SessionTimeline } from './components/SessionTimeline'
 import { InsightCards } from './components/InsightCards'
+import { getHistoryStats, getWeeklyData, getSessionsHistory, getInsights } from '@/app/actions/history'
 
 /**
  * Session History & Stats Page
@@ -9,7 +10,16 @@ import { InsightCards } from './components/InsightCards'
  * Displays comprehensive session history with timeline view,
  * statistics, weekly overview, and insights.
  */
-export default function HistoryPage() {
+export default async function HistoryPage() {
+  // Fetch all data in parallel for better performance
+  const [stats, thisWeekData, lastWeekData, sessionsData, insights] = await Promise.all([
+    getHistoryStats(),
+    getWeeklyData(0), // Current week
+    getWeeklyData(-1), // Last week
+    getSessionsHistory({ limit: 20 }),
+    getInsights(),
+  ])
+
   return (
     <main className="max-w-4xl mx-auto px-6 py-8">
       {/* Page Header */}
@@ -23,16 +33,29 @@ export default function HistoryPage() {
       </div>
 
       {/* Stats Cards Grid */}
-      <HistoryStatsCards />
+      <HistoryStatsCards
+        totalHours={stats.totalHours}
+        streak={stats.streak}
+        sessionCount={stats.sessionCount}
+        avgLength={stats.avgLength}
+      />
 
       {/* Weekly Overview Chart */}
-      <WeeklyOverview />
+      <WeeklyOverview thisWeekData={thisWeekData} lastWeekData={lastWeekData} />
 
       {/* Session Timeline */}
-      <SessionTimeline />
+      <SessionTimeline
+        initialSessions={sessionsData.groupedSessions}
+        totalCount={sessionsData.totalCount}
+        hasMore={sessionsData.hasMore}
+      />
 
       {/* Insights Cards */}
-      <InsightCards />
+      <InsightCards
+        bestDay={insights.bestDay}
+        peakHours={insights.peakHours}
+        completionRate={insights.completionRate}
+      />
     </main>
   )
 }
