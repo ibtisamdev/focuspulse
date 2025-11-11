@@ -198,13 +198,31 @@ export function getEventsForDate(events: PlannerEvent[], date: string): PlannerE
 
 /**
  * Gets upcoming events (sorted by date and time)
+ * Filters out events that have already ended
  */
 export function getUpcomingEvents(events: PlannerEvent[], fromDate: string, limit: number = 10): PlannerEvent[] {
-  const now = new Date(fromDate);
+  const now = new Date();
+  const todayDate = now.toISOString().split('T')[0];
+  const currentTimeMinutes = now.getHours() * 60 + now.getMinutes();
+
   return events
     .filter(event => {
       const eventDate = new Date(event.date);
-      return eventDate >= now;
+      const fromDateObj = new Date(fromDate);
+
+      // Event must be on or after fromDate
+      if (eventDate < fromDateObj) {
+        return false;
+      }
+
+      // For events today, check if they've already ended
+      if (event.date === todayDate) {
+        const eventEndMinutes = timeToMinutes(event.endTime);
+        return eventEndMinutes > currentTimeMinutes;
+      }
+
+      // Future events are always included
+      return true;
     })
     .sort((a, b) => {
       const dateCompare = a.date.localeCompare(b.date);
