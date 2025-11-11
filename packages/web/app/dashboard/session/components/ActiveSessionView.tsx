@@ -49,14 +49,6 @@ export function ActiveSessionView({
   } = useSessionTimer({
     initialElapsedSeconds,
     autoStart: true,
-    onTick: (seconds) => {
-      // Auto-save every 30 seconds
-      if (seconds > 0 && seconds % 30 === 0) {
-        onUpdateSession(sessionId, {
-          isPaused: false,
-        }).catch(console.error)
-      }
-    },
   })
 
   const handlePause = async () => {

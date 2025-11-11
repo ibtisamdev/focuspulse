@@ -1,9 +1,11 @@
 'use client'
 
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { ActionButton } from '@/components/ui/action-button'
 import { Plus, Clock, Calendar } from 'lucide-react'
+import { SessionTitleModal } from './SessionTitleModal'
 
 interface QuickAction {
   title: string
@@ -14,6 +16,7 @@ interface QuickAction {
 
 export function QuickActions() {
   const router = useRouter()
+  const [showTitleModal, setShowTitleModal] = useState(false)
 
   const actions: QuickAction[] = [
     {
@@ -32,7 +35,7 @@ export function QuickActions() {
       title: 'Start Timer',
       description: 'Begin focus session',
       icon: <Clock className="h-[18px] w-[18px] text-zinc-400" />,
-      onClick: () => router.push('/dashboard/session'),
+      onClick: () => setShowTitleModal(true),
     },
   ]
 
@@ -54,6 +57,9 @@ export function QuickActions() {
           ))}
         </div>
       </CardContent>
+
+      {/* Session Title Modal */}
+      <SessionTitleModal open={showTitleModal} onOpenChange={setShowTitleModal} />
     </Card>
   )
 }

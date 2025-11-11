@@ -45,8 +45,6 @@ export async function createSession(title: string, isPlanned: boolean = false) {
     },
   })
 
-  revalidatePath('/dashboard')
-  revalidatePath('/dashboard/session')
 
   return {
     id: session.id,
@@ -83,13 +81,32 @@ export async function updateSession(
     throw new Error('Session not found or unauthorized')
   }
 
+  // Prepare update data
+  const updateData: any = {
+    ...data,
+    updatedAt: new Date(),
+  }
+
+  // Handle pause/resume logic with break tracking
+  if (data.isPaused !== undefined) {
+    if (data.isPaused === true) {
+      // User is pausing - increment break count
+      updateData.breakCount = { increment: 1 }
+      updateData.isPaused = true
+      updateData.pausedAt = new Date()
+    } else if (data.isPaused === false && session.isPaused && session.pausedAt) {
+      // User is resuming - calculate break duration and add to total
+      const pauseDuration = Math.floor((new Date().getTime() - session.pausedAt.getTime()) / 1000)
+      updateData.totalBreakTime = { increment: pauseDuration }
+      updateData.isPaused = false
+      updateData.pausedAt = null
+    }
+  }
+
   // Update session
   await db.session.update({
     where: { id: sessionId },
-    data: {
-      ...data,
-      updatedAt: new Date(),
-    },
+    data: updateData,
   })
 
   revalidatePath('/dashboard')
@@ -100,7 +117,7 @@ export async function updateSession(
  * End a session
  * @param sessionId - Session ID to end
  * @param notes - Optional notes about the session
- * @returns Completed session data
+ * @returns Completed session data with break statistics
  */
 export async function endSession(sessionId: string, notes?: string) {
   const { userId: clerkId } = await auth()
@@ -120,16 +137,30 @@ export async function endSession(sessionId: string, notes?: string) {
   }
 
   const endTime = new Date()
-  const duration = Math.floor((endTime.getTime() - session.startTime.getTime()) / 1000)
+
+  // If session is currently paused, add the current pause duration to totalBreakTime
+  let totalBreakTime = session.totalBreakTime
+  if (session.isPaused && session.pausedAt) {
+    const currentPauseDuration = Math.floor((endTime.getTime() - session.pausedAt.getTime()) / 1000)
+    totalBreakTime += currentPauseDuration
+  }
+
+  // Calculate total elapsed time
+  const totalDuration = Math.floor((endTime.getTime() - session.startTime.getTime()) / 1000)
+
+  // Net focus time = total time - break time
+  const netFocusTime = totalDuration - totalBreakTime
 
   // Update session as completed
   const completedSession = await db.session.update({
     where: { id: sessionId },
     data: {
       endTime,
-      duration,
+      duration: netFocusTime, // Store net focus time (excluding breaks)
+      totalBreakTime, // Store final break time
       completed: true,
       isPaused: false,
+      pausedAt: null,
       notes: notes || null,
       updatedAt: new Date(),
     },
@@ -137,10 +168,13 @@ export async function endSession(sessionId: string, notes?: string) {
 
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/session')
+  revalidatePath('/dashboard/history')
 
   return {
     id: completedSession.id,
     duration: completedSession.duration,
+    totalBreakTime: completedSession.totalBreakTime,
+    breakCount: completedSession.breakCount,
     title: completedSession.title,
   }
 }

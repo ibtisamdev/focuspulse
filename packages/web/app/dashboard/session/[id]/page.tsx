@@ -1,17 +1,19 @@
 import { auth } from '@clerk/nextjs/server'
-import { redirect } from 'next/navigation'
+import { redirect, notFound } from 'next/navigation'
 import { ActiveSessionView } from '../components/ActiveSessionView'
+import { getSession, updateSession, endSession, getUserStats } from '@/app/actions/session'
 
 /**
- * Dynamic Session Page (Using Mock Data)
+ * Dynamic Session Page
  *
- * Resume an existing session by ID with mock data
+ * Resume an existing session by ID
+ * Fetches real session data from database
  */
 
 export default async function SessionByIdPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
   // Ensure user is authenticated
   const { userId } = await auth()
@@ -19,38 +21,59 @@ export default async function SessionByIdPage({
     redirect('/sign-in')
   }
 
-  // Mock session data
-  const title = 'Deep Work Session'
-  const startTime = new Date(Date.now() - 25 * 60 * 1000) // Started 25 minutes ago
-  const elapsedSeconds = 25 * 60 // 25 minutes
+  // Await params (Next.js 15+ requirement)
+  const { id } = await params
 
-  // Mock stats
-  const mockStats = {
-    sessionsToday: 3,
-    focusTime: '2h 14m',
-    target: '4h',
+  // Fetch session from database
+  let session
+  try {
+    session = await getSession(id)
+  } catch (error) {
+    // Session not found or unauthorized
+    notFound()
   }
 
-  // Server action wrappers for client component (mock implementations)
+  // If session is already completed, redirect to dashboard
+  if (session.completed) {
+    redirect('/dashboard')
+  }
+
+  // Calculate elapsed seconds from start time
+  const now = new Date()
+  const totalElapsedSeconds = Math.floor((now.getTime() - session.startTime.getTime()) / 1000)
+
+  // Subtract break time to get net elapsed time
+  let elapsedSeconds = totalElapsedSeconds - session.totalBreakTime
+
+  // If currently paused, also subtract the current pause duration
+  if (session.isPaused && session.pausedAt) {
+    const currentPauseDuration = Math.floor((now.getTime() - session.pausedAt.getTime()) / 1000)
+    elapsedSeconds -= currentPauseDuration
+  }
+
+  // Get user stats
+  const stats = await getUserStats()
+
+  // Server action wrappers for client component
   async function handleUpdateSession(sessionId: string, data: { isPaused: boolean; pausedAt?: Date }) {
     'use server'
-    console.log('Mock: Update session', sessionId, data)
+    await updateSession(sessionId, data)
   }
 
   async function handleEndSession(sessionId: string, notes?: string) {
     'use server'
-    console.log('Mock: End session', sessionId, notes)
+    await endSession(sessionId, notes)
   }
 
   return (
     <ActiveSessionView
-      sessionId={params.id}
-      title={title}
-      startTime={startTime}
+      sessionId={session.id}
+      title={session.title}
+      startTime={session.startTime}
       initialElapsedSeconds={elapsedSeconds}
-      sessionsToday={mockStats.sessionsToday}
-      focusTime={mockStats.focusTime}
-      target={mockStats.target}
+      sessionsToday={stats.sessionsToday}
+      focusTime={stats.focusTime}
+      target={stats.target}
       onUpdateSession={handleUpdateSession}
       onEndSession={handleEndSession}
     />

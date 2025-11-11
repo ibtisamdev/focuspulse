@@ -51,6 +51,10 @@ model Session {
   isPaused  Boolean  @default(false) // Is the session currently paused?
   pausedAt  DateTime? // When was the session paused?
 
+  // Break tracking
+  breakCount     Int @default(0) // Total number of pauses during session
+  totalBreakTime Int @default(0) // Total seconds spent on breaks
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
