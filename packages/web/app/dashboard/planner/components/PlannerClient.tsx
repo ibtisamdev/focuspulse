@@ -89,13 +89,16 @@ export function PlannerClient({ initialBlocks }: PlannerClientProps) {
   }
 
   const handleStartSession = async (event: PlannerEvent) => {
-    try {
-      const session = await createSession(event.title, true) // true = isPlanned
+    const result = await createSession(event.title, true) // true = isPlanned
+
+    if ('error' in result) {
+      alert(result.error || 'Failed to start session. Please try again.')
+      return
+    }
+
+    if (result.success && result.data) {
       // Redirect to the active session page
-      router.push(`/dashboard/session/${session.id}`)
-    } catch (error) {
-      console.error('Failed to create session:', error)
-      alert('Failed to start session. Please try again.')
+      router.push(`/dashboard/session/${result.data.id}`)
     }
   }
 

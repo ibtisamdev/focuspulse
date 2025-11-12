@@ -3,52 +3,77 @@
 import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
+import { createSessionSchema, sessionIdSchema } from '@/lib/validations/session'
 
 /**
  * Server Actions for Session Management
  *
  * These actions handle all database operations for sessions
  * using Next.js Server Actions pattern (no API routes needed)
+ *
+ * All actions include:
+ * - Input validation using Zod schemas
+ * - Authentication and authorization checks
+ * - Error handling with user-friendly messages
+ * - Automatic cache revalidation
  */
 
 /**
  * Create a new session
  * @param title - What the user is working on
  * @param isPlanned - Whether this was a planned session
- * @returns Session ID and start time
+ * @returns Session ID and start time, or error
  */
 export async function createSession(title: string, isPlanned: boolean = false) {
-  const { userId: clerkId } = await auth()
+  try {
+    // Validate input
+    const validatedInput = createSessionSchema.parse({ title, isPlanned })
 
-  if (!clerkId) {
-    throw new Error('Unauthorized')
-  }
+    // Check authentication
+    const { userId: clerkId } = await auth()
+    if (!clerkId) {
+      return { error: 'You must be logged in to create a session' }
+    }
 
-  // Get user from database
-  const user = await db.user.findUnique({
-    where: { clerkId },
-  })
+    // Get user from database
+    const user = await db.user.findUnique({
+      where: { clerkId },
+    })
 
-  if (!user) {
-    throw new Error('User not found')
-  }
+    if (!user) {
+      return { error: 'User account not found. Please try signing in again.' }
+    }
 
-  // Create new session
-  const session = await db.session.create({
-    data: {
-      userId: user.id,
-      title,
-      isPlanned,
-      startTime: new Date(),
-      completed: false,
-      isPaused: false,
-    },
-  })
+    // Create new session
+    const session = await db.session.create({
+      data: {
+        userId: user.id,
+        title: validatedInput.title,
+        isPlanned: validatedInput.isPlanned,
+        startTime: new Date(),
+        completed: false,
+        isPaused: false,
+      },
+    })
 
+    revalidatePath('/dashboard')
 
-  return {
-    id: session.id,
-    startTime: session.startTime,
+    return {
+      success: true,
+      data: {
+        id: session.id,
+        startTime: session.startTime,
+      },
+    }
+  } catch (error) {
+    console.error('Error creating session:', error)
+
+    // Handle validation errors
+    if (error instanceof Error && error.name === 'ZodError') {
+      return { error: 'Invalid session data. Please check your input.' }
+    }
+
+    return { error: 'Failed to create session. Please try again.' }
   }
 }
 
@@ -117,65 +142,90 @@ export async function updateSession(
  * End a session
  * @param sessionId - Session ID to end
  * @param notes - Optional notes about the session
- * @returns Completed session data with break statistics
+ * @returns Completed session data with break statistics, or error
  */
 export async function endSession(sessionId: string, notes?: string) {
-  const { userId: clerkId } = await auth()
+  try {
+    // Validate session ID
+    const validatedId = sessionIdSchema.parse(sessionId)
 
-  if (!clerkId) {
-    throw new Error('Unauthorized')
-  }
+    // Check authentication
+    const { userId: clerkId } = await auth()
+    if (!clerkId) {
+      return { error: 'You must be logged in to end a session' }
+    }
 
-  // Verify session belongs to user
-  const session = await db.session.findUnique({
-    where: { id: sessionId },
-    include: { user: true },
-  })
+    // Verify session belongs to user
+    const session = await db.session.findUnique({
+      where: { id: validatedId },
+      include: { user: true },
+    })
 
-  if (!session || session.user.clerkId !== clerkId) {
-    throw new Error('Session not found or unauthorized')
-  }
+    if (!session) {
+      return { error: 'Session not found' }
+    }
 
-  const endTime = new Date()
+    if (session.user.clerkId !== clerkId) {
+      return { error: 'You do not have permission to end this session' }
+    }
 
-  // If session is currently paused, add the current pause duration to totalBreakTime
-  let totalBreakTime = session.totalBreakTime
-  if (session.isPaused && session.pausedAt) {
-    const currentPauseDuration = Math.floor((endTime.getTime() - session.pausedAt.getTime()) / 1000)
-    totalBreakTime += currentPauseDuration
-  }
+    if (session.completed) {
+      return { error: 'This session has already been completed' }
+    }
 
-  // Calculate total elapsed time
-  const totalDuration = Math.floor((endTime.getTime() - session.startTime.getTime()) / 1000)
+    const endTime = new Date()
 
-  // Net focus time = total time - break time
-  const netFocusTime = totalDuration - totalBreakTime
+    // If session is currently paused, add the current pause duration to totalBreakTime
+    let totalBreakTime = session.totalBreakTime
+    if (session.isPaused && session.pausedAt) {
+      const currentPauseDuration = Math.floor((endTime.getTime() - session.pausedAt.getTime()) / 1000)
+      totalBreakTime += currentPauseDuration
+    }
 
-  // Update session as completed
-  const completedSession = await db.session.update({
-    where: { id: sessionId },
-    data: {
-      endTime,
-      duration: netFocusTime, // Store net focus time (excluding breaks)
-      totalBreakTime, // Store final break time
-      completed: true,
-      isPaused: false,
-      pausedAt: null,
-      notes: notes || null,
-      updatedAt: new Date(),
-    },
-  })
+    // Calculate total elapsed time
+    const totalDuration = Math.floor((endTime.getTime() - session.startTime.getTime()) / 1000)
 
-  revalidatePath('/dashboard')
-  revalidatePath('/dashboard/session')
-  revalidatePath('/dashboard/history')
+    // Net focus time = total time - break time
+    const netFocusTime = totalDuration - totalBreakTime
 
-  return {
-    id: completedSession.id,
-    duration: completedSession.duration,
-    totalBreakTime: completedSession.totalBreakTime,
-    breakCount: completedSession.breakCount,
-    title: completedSession.title,
+    // Update session as completed
+    const completedSession = await db.session.update({
+      where: { id: validatedId },
+      data: {
+        endTime,
+        duration: netFocusTime, // Store net focus time (excluding breaks)
+        totalBreakTime, // Store final break time
+        completed: true,
+        isPaused: false,
+        pausedAt: null,
+        notes: notes?.trim() || null,
+        updatedAt: new Date(),
+      },
+    })
+
+    revalidatePath('/dashboard')
+    revalidatePath('/dashboard/session')
+    revalidatePath('/dashboard/history')
+
+    return {
+      success: true,
+      data: {
+        id: completedSession.id,
+        duration: completedSession.duration,
+        totalBreakTime: completedSession.totalBreakTime,
+        breakCount: completedSession.breakCount,
+        title: completedSession.title,
+      },
+    }
+  } catch (error) {
+    console.error('Error ending session:', error)
+
+    // Handle validation errors
+    if (error instanceof Error && error.name === 'ZodError') {
+      return { error: 'Invalid session ID' }
+    }
+
+    return { error: 'Failed to end session. Please try again.' }
   }
 }
 

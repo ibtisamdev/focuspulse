@@ -35,7 +35,13 @@ export default async function SessionPage({
   const title = titleParam || 'Deep Work Session'
 
   // Create new session in database
-  const newSession = await createSession(title, false)
+  const sessionResult = await createSession(title, false)
+
+  // Handle error case
+  if ('error' in sessionResult) {
+    // Redirect to dashboard with error (in production, you'd show a toast/notification)
+    redirect('/dashboard?error=failed-to-create-session')
+  }
 
   // Get user stats
   const stats = await getUserStats()
@@ -53,9 +59,9 @@ export default async function SessionPage({
 
   return (
     <ActiveSessionView
-      sessionId={newSession.id}
+      sessionId={sessionResult.data.id}
       title={title}
-      startTime={newSession.startTime}
+      startTime={sessionResult.data.startTime}
       initialElapsedSeconds={0}
       sessionsToday={stats.sessionsToday}
       focusTime={stats.focusTime}

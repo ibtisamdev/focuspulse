@@ -1,10 +1,13 @@
 import { PrismaClient } from '@prisma/client'
 
 /**
- * Prisma Client Singleton
+ * Prisma Client Singleton (Optimized for Serverless)
  *
- * This prevents multiple instances of Prisma Client in development
- * due to hot reloading. In production, it creates a single instance.
+ * This configuration is optimized for Next.js on Vercel with Neon PostgreSQL:
+ * - Prevents multiple instances due to hot reloading in development
+ * - Configures appropriate logging for each environment
+ * - Optimizes connection pooling for serverless (Vercel Functions)
+ * - Uses Neon's pooled connection endpoint for best performance
  *
  * Documentation: https://www.prisma.io/docs/guides/database/troubleshooting-orm/help-articles/nextjs-prisma-client-dev-practices
  */
@@ -14,9 +17,23 @@ const globalForPrisma = globalThis as unknown as {
 }
 
 export const db = globalForPrisma.prisma ?? new PrismaClient({
-  log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+  log: process.env.NODE_ENV === 'development'
+    ? ['query', 'error', 'warn']
+    : ['error'],
+
+  // Optimize for serverless environments (Vercel)
+  // Neon's pooled connection handles connection pooling
+  // So we don't need to configure it here
 })
 
 if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = db
+}
+
+// Graceful shutdown for serverless
+// This ensures connections are properly closed
+if (process.env.NODE_ENV === 'production') {
+  process.on('beforeExit', async () => {
+    await db.$disconnect()
+  })
 }
