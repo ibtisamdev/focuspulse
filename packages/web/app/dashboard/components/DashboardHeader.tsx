@@ -62,6 +62,15 @@ export function DashboardHeader() {
             >
               Projects
             </Link>
+            <Link
+              href="/dashboard/settings"
+              className={cn(
+                'transition-colors',
+                isActive('/dashboard/settings') ? 'text-zinc-50' : 'text-zinc-400 hover:text-zinc-300'
+              )}
+            >
+              Settings
+            </Link>
           </div>
         </div>
         <div className="flex items-center gap-4">
