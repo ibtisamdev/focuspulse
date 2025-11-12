@@ -2,15 +2,44 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, Download } from 'lucide-react';
+import { AlertTriangle, Download, Loader2 } from 'lucide-react';
 import { DeleteAccountDialog } from './delete-account-dialog';
+import { exportUserData } from '@/app/actions/settings';
+import { toast } from 'sonner';
 
 export function DangerZoneTab() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   const handleExportData = async () => {
-    // TODO: Connect to Server Action for data export
-    console.log('Exporting user data...');
+    setIsExporting(true);
+
+    try {
+      const result = await exportUserData();
+
+      if (result.success && result.data) {
+        // Create a JSON blob and trigger download
+        const blob = new Blob([JSON.stringify(result.data, null, 2)], {
+          type: 'application/json',
+        });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `focuspulse-data-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        toast.success('Data exported successfully');
+      } else {
+        toast.error(result.error || 'Failed to export data');
+      }
+    } catch (error) {
+      toast.error('An unexpected error occurred');
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (
@@ -91,10 +120,18 @@ export function DangerZoneTab() {
             <Button
               type="button"
               onClick={handleExportData}
+              disabled={isExporting}
               variant="outline"
               className="bg-[#09090b] text-zinc-50 hover:bg-zinc-900 border-zinc-800 font-medium"
             >
-              Export Data
+              {isExporting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Exporting...
+                </>
+              ) : (
+                'Export Data'
+              )}
             </Button>
           </div>
         </div>

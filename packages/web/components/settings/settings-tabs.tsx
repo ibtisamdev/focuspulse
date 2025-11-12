@@ -6,7 +6,24 @@ import { SecurityTab } from './security-tab';
 import { PreferencesTab } from './preferences-tab';
 import { DangerZoneTab } from './danger-zone-tab';
 
-export function SettingsTabs() {
+interface SettingsTabsProps {
+  initialData: {
+    fullName: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    imageUrl?: string;
+    weeklyGoal: number;
+    defaultSessionDuration: number;
+    theme: 'dark' | 'light' | 'system';
+    timezone: string;
+    emailNotifications: boolean;
+    sessionReminders: boolean;
+    streakAlerts: boolean;
+  };
+}
+
+export function SettingsTabs({ initialData }: SettingsTabsProps) {
   return (
     <Tabs defaultValue="profile" className="w-full">
       <TabsList className="!bg-zinc-900 border border-zinc-800">
@@ -37,7 +54,7 @@ export function SettingsTabs() {
       </TabsList>
 
       <TabsContent value="profile" className="mt-6 bg-zinc-900 border border-zinc-800 rounded-lg p-6">
-        <ProfileTab />
+        <ProfileTab initialData={initialData} />
       </TabsContent>
 
       <TabsContent value="security" className="mt-6 bg-zinc-900 border border-zinc-800 rounded-lg p-6">
@@ -45,7 +62,7 @@ export function SettingsTabs() {
       </TabsContent>
 
       <TabsContent value="preferences" className="mt-6 bg-zinc-900 border border-zinc-800 rounded-lg p-6">
-        <PreferencesTab />
+        <PreferencesTab initialData={initialData} />
       </TabsContent>
 
       <TabsContent value="danger-zone" className="mt-6 bg-zinc-900 border border-zinc-800 rounded-lg p-6">

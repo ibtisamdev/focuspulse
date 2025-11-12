@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Loader2 } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -12,25 +13,61 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { updatePreferences } from '@/app/actions/settings';
+import { toast } from 'sonner';
 import type { PreferencesData } from '@/lib/types/settings';
 
-export function PreferencesTab() {
+interface PreferencesTabProps {
+  initialData: {
+    weeklyGoal: number;
+    defaultSessionDuration: number;
+    theme: 'dark' | 'light' | 'system';
+    timezone: string;
+    emailNotifications: boolean;
+    sessionReminders: boolean;
+    streakAlerts: boolean;
+  };
+}
+
+export function PreferencesTab({ initialData }: PreferencesTabProps) {
   const [formData, setFormData] = useState<PreferencesData>({
-    weeklyGoal: 12,
-    defaultSessionDuration: 90,
-    theme: 'dark',
-    timezone: 'UTC-5',
+    weeklyGoal: initialData.weeklyGoal,
+    defaultSessionDuration: initialData.defaultSessionDuration,
+    theme: initialData.theme,
+    timezone: initialData.timezone,
     notifications: {
-      email: true,
-      sessionReminders: true,
-      streakAlerts: false,
+      email: initialData.emailNotifications,
+      sessionReminders: initialData.sessionReminders,
+      streakAlerts: initialData.streakAlerts,
     },
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Connect to Server Action
-    console.log('Saving preferences:', formData);
+    setIsLoading(true);
+
+    try {
+      const result = await updatePreferences({
+        weeklyGoalHours: formData.weeklyGoal,
+        defaultSessionDuration: formData.defaultSessionDuration,
+        theme: formData.theme,
+        timezone: formData.timezone,
+        emailNotifications: formData.notifications.email,
+        sessionReminders: formData.notifications.sessionReminders,
+        streakAlerts: formData.notifications.streakAlerts,
+      });
+
+      if (result.success) {
+        toast.success('Preferences updated successfully');
+      } else {
+        toast.error(result.error || 'Failed to update preferences');
+      }
+    } catch (error) {
+      toast.error('An unexpected error occurred');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -234,15 +271,35 @@ export function PreferencesTab() {
         <Button
           type="button"
           variant="ghost"
+          onClick={() => setFormData({
+            weeklyGoal: initialData.weeklyGoal,
+            defaultSessionDuration: initialData.defaultSessionDuration,
+            theme: initialData.theme,
+            timezone: initialData.timezone,
+            notifications: {
+              email: initialData.emailNotifications,
+              sessionReminders: initialData.sessionReminders,
+              streakAlerts: initialData.streakAlerts,
+            },
+          })}
+          disabled={isLoading}
           className="text-sm text-zinc-400 hover:text-zinc-300 hover:bg-transparent"
         >
           Cancel
         </Button>
         <Button
           type="submit"
+          disabled={isLoading}
           className="text-sm bg-zinc-50 text-zinc-900 hover:bg-zinc-200 font-medium"
         >
-          Save Preferences
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Saving...
+            </>
+          ) : (
+            'Save Preferences'
+          )}
         </Button>
       </div>
     </form>

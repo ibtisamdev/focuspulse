@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN "emailNotifications" BOOLEAN NOT NULL DEFAULT true,
+ADD COLUMN "sessionReminders" BOOLEAN NOT NULL DEFAULT true,
+ADD COLUMN "streakAlerts" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN "theme" TEXT NOT NULL DEFAULT 'dark',
+ADD COLUMN "timezone" TEXT NOT NULL DEFAULT 'UTC';

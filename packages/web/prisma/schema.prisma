@@ -1,6 +1,3 @@
-// Prisma Schema for FocusPulse
-// Documentation: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,53 +7,46 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// User model - synced with Clerk authentication
 model User {
-  id        String   @id @default(cuid())
-  clerkId   String   @unique // Clerk user ID
-  email     String   @unique
-  firstName String?
-  lastName  String?
-  imageUrl  String?
-
-  // User preferences
-  weeklyGoalHours    Int      @default(12) // Default 12 hours per week
-  defaultSessionDuration Int  @default(90) // Default 90 minutes
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  sessions      Session[]
-  plannedBlocks PlannedBlock[]
+  id                     String         @id @default(cuid())
+  clerkId                String         @unique
+  email                  String         @unique
+  firstName              String?
+  lastName               String?
+  imageUrl               String?
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @updatedAt
+  defaultSessionDuration Int            @default(90)
+  weeklyGoalHours        Int            @default(12)
+  emailNotifications     Boolean        @default(true)
+  sessionReminders       Boolean        @default(true)
+  streakAlerts           Boolean        @default(false)
+  theme                  String         @default("dark")
+  timezone               String         @default("UTC")
+  plannedBlocks          PlannedBlock[]
+  sessions               Session[]
 
   @@index([clerkId])
   @@index([email])
 }
 
-// Session model - Track completed/active deep work sessions
 model Session {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  title     String   // What the user is working on
-  startTime DateTime @default(now())
-  endTime   DateTime? // Null if session is still active
-  duration  Int?     // Duration in seconds (calculated when ended)
-  notes     String?  // Optional notes added at end of session
-
-  isPlanned Boolean  @default(false) // Was this session planned in advance?
-  completed Boolean  @default(false) // Has the session been completed?
-  isPaused  Boolean  @default(false) // Is the session currently paused?
-  pausedAt  DateTime? // When was the session paused?
-
-  // Break tracking
-  breakCount     Int @default(0) // Total number of pauses during session
-  totalBreakTime Int @default(0) // Total seconds spent on breaks
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             String    @id @default(cuid())
+  userId         String
+  title          String
+  startTime      DateTime  @default(now())
+  endTime        DateTime?
+  duration       Int?
+  notes          String?
+  isPlanned      Boolean   @default(false)
+  completed      Boolean   @default(false)
+  isPaused       Boolean   @default(false)
+  pausedAt       DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  breakCount     Int       @default(0)
+  totalBreakTime Int       @default(0)
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([startTime])
@@ -64,22 +54,18 @@ model Session {
   @@index([userId, startTime])
 }
 
-// PlannedBlock model - Scheduled deep work blocks
 model PlannedBlock {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  title     String   // What the user plans to work on
-  dayOfWeek Int      // 0-6 (Sunday to Saturday)
-  startTime String   // Time in HH:MM format (e.g., "09:00")
-  duration  Int      // Duration in minutes
-
-  isRecurring Boolean  @default(false) // Does this repeat weekly?
-  isActive    Boolean  @default(true)  // Is this block still active?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  userId      String
+  title       String
+  dayOfWeek   Int
+  startTime   String
+  duration    Int
+  isRecurring Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([userId, dayOfWeek])

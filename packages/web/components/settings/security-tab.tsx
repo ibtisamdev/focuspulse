@@ -4,7 +4,9 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Check } from 'lucide-react';
+import { Check, Loader2 } from 'lucide-react';
+import { updatePassword } from '@/app/actions/settings';
+import { toast } from 'sonner';
 import type { SecurityData, PasswordRequirements } from '@/lib/types/settings';
 
 export function SecurityTab() {
@@ -13,6 +15,7 @@ export function SecurityTab() {
     newPassword: '',
     confirmPassword: '',
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   // Password validation
   const [requirements, setRequirements] = useState<PasswordRequirements>({
@@ -37,12 +40,45 @@ export function SecurityTab() {
 
     // Validate passwords match
     if (formData.newPassword !== formData.confirmPassword) {
-      alert('Passwords do not match');
+      toast.error('Passwords do not match');
       return;
     }
 
-    // TODO: Connect to Server Action
-    console.log('Updating password');
+    // Validate all requirements are met
+    if (!requirements.minLength || !requirements.hasUppercase || !requirements.hasNumber) {
+      toast.error('Password does not meet all requirements');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const result = await updatePassword({
+        currentPassword: formData.currentPassword,
+        newPassword: formData.newPassword,
+      });
+
+      if (result.success) {
+        toast.success('Password updated successfully');
+        // Reset form
+        setFormData({
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: '',
+        });
+        setRequirements({
+          minLength: false,
+          hasUppercase: false,
+          hasNumber: false,
+        });
+      } else {
+        toast.error(result.error || 'Failed to update password');
+      }
+    } catch (error) {
+      toast.error('An unexpected error occurred');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -132,15 +168,24 @@ export function SecurityTab() {
           type="button"
           variant="ghost"
           onClick={() => setFormData({ currentPassword: '', newPassword: '', confirmPassword: '' })}
+          disabled={isLoading}
           className="text-sm text-zinc-400 hover:text-zinc-300 hover:bg-transparent"
         >
           Cancel
         </Button>
         <Button
           type="submit"
+          disabled={isLoading}
           className="text-sm bg-zinc-50 text-zinc-900 hover:bg-zinc-200 font-medium"
         >
-          Update Password
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Updating...
+            </>
+          ) : (
+            'Update Password'
+          )}
         </Button>
       </div>
     </form>

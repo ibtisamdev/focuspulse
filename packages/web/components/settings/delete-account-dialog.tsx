@@ -12,7 +12,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Loader2 } from 'lucide-react';
+import { deleteAccount } from '@/app/actions/settings';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 interface DeleteAccountDialogProps {
   open: boolean;
@@ -21,17 +24,30 @@ interface DeleteAccountDialogProps {
 
 export function DeleteAccountDialog({ open, onOpenChange }: DeleteAccountDialogProps) {
   const [confirmText, setConfirmText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
   const isConfirmed = confirmText === 'DELETE';
+  const router = useRouter();
 
   const handleDelete = async () => {
     if (!isConfirmed) return;
 
-    // TODO: Connect to Server Action
-    console.log('Deleting account...');
+    setIsDeleting(true);
 
-    // Close dialog
-    onOpenChange(false);
-    setConfirmText('');
+    try {
+      const result = await deleteAccount();
+
+      if (result.success) {
+        toast.success('Account deleted successfully');
+        // Redirect to home page after deletion
+        router.push('/');
+      } else {
+        toast.error(result.error || 'Failed to delete account');
+        setIsDeleting(false);
+      }
+    } catch (error) {
+      toast.error('An unexpected error occurred');
+      setIsDeleting(false);
+    }
   };
 
   const handleCancel = () => {
@@ -77,6 +93,7 @@ export function DeleteAccountDialog({ open, onOpenChange }: DeleteAccountDialogP
             type="button"
             variant="outline"
             onClick={handleCancel}
+            disabled={isDeleting}
             className="flex-1 bg-[#09090b] text-zinc-50 hover:bg-zinc-900 border-zinc-800"
           >
             Cancel
@@ -84,10 +101,17 @@ export function DeleteAccountDialog({ open, onOpenChange }: DeleteAccountDialogP
           <Button
             type="button"
             onClick={handleDelete}
-            disabled={!isConfirmed}
+            disabled={!isConfirmed || isDeleting}
             className="flex-1 bg-red-900/50 text-red-400 hover:bg-red-900/70 border border-red-900/50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Delete Account
+            {isDeleting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Deleting...
+              </>
+            ) : (
+              'Delete Account'
+            )}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
