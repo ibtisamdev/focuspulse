@@ -137,37 +137,8 @@ export function PreferencesTab({ initialData }: PreferencesTabProps) {
         </p>
       </div>
 
-      {/* Theme Preference */}
-      <div className="space-y-2">
-        <Label htmlFor="theme" className="text-sm font-medium text-zinc-400">
-          Theme
-        </Label>
-        <Select
-          value={formData.theme}
-          onValueChange={(value: 'dark' | 'light' | 'system') => setFormData({ ...formData, theme: value })}
-        >
-          <SelectTrigger className="bg-[#09090b] border-zinc-800 text-zinc-50 focus:ring-2 focus:ring-zinc-700">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="bg-[#18181b] border-zinc-800">
-            <SelectItem value="dark" className="text-zinc-50 focus:bg-zinc-800 focus:text-zinc-50">
-              Dark
-            </SelectItem>
-            <SelectItem value="light" className="text-zinc-50 focus:bg-zinc-800 focus:text-zinc-50">
-              Light
-            </SelectItem>
-            <SelectItem value="system" className="text-zinc-50 focus:bg-zinc-800 focus:text-zinc-50">
-              System
-            </SelectItem>
-          </SelectContent>
-        </Select>
-        <p className="text-xs text-zinc-500">
-          Choose your preferred color theme
-        </p>
-      </div>
-
       {/* Time Zone */}
-      <div className="space-y-2">
+      {/* <div className="space-y-2">
         <Label htmlFor="timezone" className="text-sm font-medium text-zinc-400">
           Time Zone
         </Label>
@@ -202,15 +173,14 @@ export function PreferencesTab({ initialData }: PreferencesTabProps) {
         <p className="text-xs text-zinc-500">
           Your current time zone setting
         </p>
-      </div>
+      </div> */}
 
       {/* Notification Preferences */}
-      <div className="bg-[#09090b] border border-zinc-800 rounded-md p-4">
+      {/* <div className="bg-[#09090b] border border-zinc-800 rounded-md p-4">
         <p className="text-sm font-medium text-zinc-50 mb-4">
           Notification Preferences
         </p>
         <div className="space-y-3">
-          {/* Email Notifications */}
           <label className="flex items-center justify-between cursor-pointer">
             <div>
               <p className="text-sm text-zinc-50">Email Notifications</p>
@@ -228,7 +198,6 @@ export function PreferencesTab({ initialData }: PreferencesTabProps) {
             />
           </label>
 
-          {/* Session Reminders */}
           <label className="flex items-center justify-between cursor-pointer">
             <div>
               <p className="text-sm text-zinc-50">Session Reminders</p>
@@ -246,7 +215,6 @@ export function PreferencesTab({ initialData }: PreferencesTabProps) {
             />
           </label>
 
-          {/* Streak Alerts */}
           <label className="flex items-center justify-between cursor-pointer">
             <div>
               <p className="text-sm text-zinc-50">Streak Alerts</p>
@@ -264,7 +232,7 @@ export function PreferencesTab({ initialData }: PreferencesTabProps) {
             />
           </label>
         </div>
-      </div>
+      </div> */}
 
       {/* Action Buttons */}
       <div className="flex items-center justify-end gap-3 pt-4 border-t border-zinc-800">
