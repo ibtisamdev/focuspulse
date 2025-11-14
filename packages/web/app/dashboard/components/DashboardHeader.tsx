@@ -53,7 +53,7 @@ export function DashboardHeader() {
             >
               History
             </Link>
-            <Link
+            {/* <Link
               href="/projects"
               className={cn(
                 'transition-colors',
@@ -61,7 +61,7 @@ export function DashboardHeader() {
               )}
             >
               Projects
-            </Link>
+            </Link> */}
             <Link
               href="/dashboard/settings"
               className={cn(
