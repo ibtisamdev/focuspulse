@@ -53,6 +53,62 @@ export async function updateProfile(data: {
 }
 
 /**
+ * Update user avatar
+ */
+export async function updateAvatar(formData: FormData) {
+  try {
+    const { userId } = await auth()
+    if (!userId) {
+      return { success: false, error: 'Unauthorized' }
+    }
+
+    const file = formData.get('file') as File
+    if (!file) {
+      return { success: false, error: 'No file provided' }
+    }
+
+    // Validate file type
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp']
+    if (!allowedTypes.includes(file.type)) {
+      return { success: false, error: 'Invalid file type. Please upload a PNG, JPG, or WebP image' }
+    }
+
+    // Validate file size (5MB max)
+    const maxSize = 5 * 1024 * 1024
+    if (file.size > maxSize) {
+      return { success: false, error: 'File size must be less than 5MB' }
+    }
+
+    // Update profile image in Clerk
+    const client = await clerkClient()
+    const updatedUser = await client.users.updateUserProfileImage(userId, {
+      file: file,
+    })
+
+    // Update imageUrl in database
+    await db.user.update({
+      where: { clerkId: userId },
+      data: {
+        imageUrl: updatedUser.imageUrl,
+      },
+    })
+
+    revalidatePath('/dashboard/settings')
+
+    return { success: true }
+  } catch (error: any) {
+    console.error('Error updating avatar:', error)
+
+    // Check for common Clerk errors
+    if (error.clerkError) {
+      return { success: false, error: error.errors?.[0]?.message || 'Failed to update avatar' }
+    }
+
+    return { success: false, error: error.message || 'Failed to update avatar' }
+  }
+}
+
+/**
  * Update user password via Clerk
  */
 export async function updatePassword(data: {

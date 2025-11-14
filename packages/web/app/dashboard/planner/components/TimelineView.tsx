@@ -69,7 +69,7 @@ export function TimelineView({
           <Button
             variant="outline"
             size="sm"
-            className="text-xs border-zinc-800 hover:bg-zinc-800/50"
+            className="text-xs border-zinc-700 text-zinc-50 hover:bg-zinc-800/50"
           >
             Today
           </Button>

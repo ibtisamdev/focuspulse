@@ -17,7 +17,7 @@ export function SessionTimer({ formattedTime, className }: SessionTimerProps) {
   return (
     <div className={cn('text-center', className)}>
       <div
-        className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-zinc-50 tracking-tight animate-breathe"
+        className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-zinc-50 tracking-tight animate-breathe"
         aria-live="polite"
         aria-atomic="true"
       >

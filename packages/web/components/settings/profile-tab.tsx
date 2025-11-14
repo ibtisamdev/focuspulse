@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { CheckCircle2, Loader2 } from 'lucide-react';
 import { updateProfile } from '@/app/actions/settings';
 import { toast } from 'sonner';
+import { AvatarUploadDialog } from './avatar-upload-dialog';
 
 interface ProfileTabProps {
   initialData: {
@@ -23,6 +24,7 @@ export function ProfileTab({ initialData }: ProfileTabProps) {
   const [firstName, setFirstName] = useState(initialData.firstName);
   const [lastName, setLastName] = useState(initialData.lastName);
   const [isLoading, setIsLoading] = useState(false);
+  const [avatarDialogOpen, setAvatarDialogOpen] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,16 +78,24 @@ export function ProfileTab({ initialData }: ProfileTabProps) {
           <Button
             type="button"
             variant="outline"
+            onClick={() => setAvatarDialogOpen(true)}
             className="text-sm border-zinc-800 bg-transparent hover:bg-zinc-800/50 text-zinc-50"
-            disabled
           >
             Change Avatar
           </Button>
           <p className="text-xs text-zinc-500 mt-2">
-            Managed by your authentication provider
+            JPG, PNG or WebP. Max 5MB
           </p>
         </div>
       </div>
+
+      {/* Avatar Upload Dialog */}
+      <AvatarUploadDialog
+        open={avatarDialogOpen}
+        onOpenChange={setAvatarDialogOpen}
+        currentImageUrl={initialData.imageUrl}
+        userName={initialData.fullName}
+      />
 
       {/* First Name */}
       <div className="space-y-2">

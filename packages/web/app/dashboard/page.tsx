@@ -96,9 +96,9 @@ export default async function DashboardPage() {
       </div>
 
       {/* Recent Sessions */}
-      <div className="mb-8">
+      {/* <div className="mb-8">
         <RecentTasks />
-      </div>
+      </div> */}
 
       {/* Quick Actions */}
       {/* <QuickActions /> */}

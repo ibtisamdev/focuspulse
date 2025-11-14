@@ -1,5 +1,6 @@
 import { DashboardHeader } from './components/DashboardHeader'
 import { DashboardFooter } from './components/DashboardFooter'
+import { getActiveSession } from '@/app/actions/session'
 
 /**
  * Dashboard Layout
@@ -8,15 +9,18 @@ import { DashboardFooter } from './components/DashboardFooter'
  * This layout wraps all pages under /dashboard route.
  */
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  // Fetch active session to determine header state
+  const activeSession = await getActiveSession()
+
   return (
     <div className="min-h-screen bg-[#09090b]">
       {/* Top Navigation */}
-      <DashboardHeader />
+      <DashboardHeader hasActiveSession={!!activeSession} />
 
       {/* Main Content - Page-specific content will be rendered here */}
       {children}

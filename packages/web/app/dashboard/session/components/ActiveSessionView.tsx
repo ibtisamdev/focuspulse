@@ -82,27 +82,27 @@ export function ActiveSessionView({
   }
 
   return (
-    <div className="h-screen w-screen flex flex-col relative bg-gradient-to-b from-[#09090b] via-[#0f0f12] to-[#09090b] overflow-hidden">
+    <div className="h-screen w-full flex flex-col relative bg-gradient-to-b from-[#09090b] via-[#0f0f12] to-[#09090b] overflow-hidden">
       {/* Decorative Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Top left corner accent */}
-        <div className="absolute top-0 left-0 w-96 h-96 bg-zinc-800 opacity-5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
+        <div className="absolute top-0 left-0 w-64 sm:w-80 md:w-96 h-64 sm:h-80 md:h-96 bg-zinc-800 opacity-5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
         {/* Bottom right corner accent */}
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-zinc-800 opacity-5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
+        <div className="absolute bottom-0 right-0 w-64 sm:w-80 md:w-96 h-64 sm:h-80 md:h-96 bg-zinc-800 opacity-5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
       </div>
 
       {/* Header */}
       <SessionHeader />
 
       {/* Main Content - Centered with flex-1 to take available space */}
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 pt-16 sm:pt-20 pb-4 animate-fade-in">
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 pt-8 sm:pt-12 pb-4 max-h-[calc(100vh-180px)] animate-fade-in">
         <SessionCircle>
           {/* Task Title */}
           <div className="text-center mb-6">
             <div className="text-xs uppercase tracking-wider text-zinc-500 mb-2">
               Current Task
             </div>
-            <h1 className="text-xl sm:text-2xl font-semibold text-zinc-50">{title}</h1>
+            <h1 className="text-xl sm:text-2xl font-semibold text-zinc-50 max-w-[280px] sm:max-w-md mx-auto truncate">{title}</h1>
           </div>
 
           {/* Timer Display */}
