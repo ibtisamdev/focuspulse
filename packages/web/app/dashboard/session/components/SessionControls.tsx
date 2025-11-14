@@ -68,12 +68,12 @@ export function SessionControls({
 
   return (
     <>
-      <div className="flex items-center justify-center gap-3 sm:gap-4 animate-fade-in px-4">
+      <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 animate-fade-in px-4 max-w-full">
         {/* Take Break / Resume Button */}
         <Button
           variant="outline"
           size="lg"
-          className="h-auto px-6 sm:px-8 py-3 sm:py-4 border-zinc-800 bg-[#18181b] hover:bg-zinc-800/80 transition-all hover:-translate-y-0.5 hover:shadow-lg"
+          className="h-auto px-4 sm:px-6 md:px-8 py-3 sm:py-4 border-zinc-800 bg-[#18181b] hover:bg-zinc-800/80 transition-all hover:-translate-y-0.5 hover:shadow-lg"
           onClick={isPaused ? onResume : handleBreakClick}
         >
           <Pause className="h-4 w-4 sm:h-5 sm:w-5 text-zinc-400 mr-2 sm:mr-3" />
@@ -85,7 +85,7 @@ export function SessionControls({
         {/* End Session Button */}
         <Button
           size="lg"
-          className="h-auto px-6 sm:px-8 py-3 sm:py-4 bg-zinc-50 hover:bg-zinc-200 transition-all hover:-translate-y-0.5 hover:shadow-lg"
+          className="h-auto px-4 sm:px-6 md:px-8 py-3 sm:py-4 bg-zinc-50 hover:bg-zinc-200 transition-all hover:-translate-y-0.5 hover:shadow-lg"
           onClick={handleEndClick}
         >
           <Square className="h-4 w-4 sm:h-5 sm:w-5 text-zinc-900 mr-2 sm:mr-3 fill-zinc-900" />

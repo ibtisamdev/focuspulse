@@ -18,7 +18,7 @@ export function SessionStats({
   target,
 }: SessionStatsProps) {
   return (
-    <div className="flex items-center gap-4 sm:gap-6 md:gap-8">
+    <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 md:gap-8 max-w-full">
       <div className="text-center">
         <div className="text-xs text-zinc-500 mb-1">Sessions Today</div>
         <div className="text-xl sm:text-2xl font-semibold text-zinc-400">
