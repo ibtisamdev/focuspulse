@@ -95,7 +95,17 @@ export function DashboardHeader() {
           >
             <Bell className="h-4 w-4 text-zinc-400" />
           </Button> */}
-          <UserButton />
+          <UserButton
+            userProfileMode="navigation"
+            userProfileUrl="/dashboard/settings"
+            appearance={{
+              elements: {
+                userButtonPopoverActionButton__manageAccount: {
+                  display: 'none',
+                },
+              },
+            }}
+          />
         </div>
       </div>
 
