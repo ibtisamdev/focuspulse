@@ -24,6 +24,7 @@ export function DayTabs({ days, selectedDate, onSelectDay }: DayTabsProps) {
               className={cn(
                 'px-3 py-2 rounded-md text-xs font-medium border transition-colors',
                 'hover:bg-zinc-800/50',
+                isToday && !isActive && 'border-zinc-700 bg-zinc-800/30',
                 isActive
                   ? 'bg-[#27272a] border-zinc-700'
                   : 'border-transparent'
@@ -37,7 +38,7 @@ export function DayTabs({ days, selectedDate, onSelectDay }: DayTabsProps) {
               </div>
               <div className={cn(
                 'text-[10px] mt-0.5 transition-colors',
-                isToday ? 'text-blue-400 font-semibold' : 'text-zinc-500'
+                isToday ? 'text-zinc-50 font-semibold' : 'text-zinc-500'
               )}>
                 {day.monthName} {day.dayNumber}
               </div>
