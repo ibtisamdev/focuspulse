@@ -45,12 +45,13 @@ export function SettingsTabs({ initialData }: SettingsTabsProps) {
         >
           Preferences
         </TabsTrigger>
-        <TabsTrigger
+        {/* TODO: Add Danger Zone tab back in later */}
+        {/* <TabsTrigger
           value="danger-zone"
           className="data-[state=active]:!bg-zinc-700 data-[state=active]:!text-white data-[state=active]:!border-zinc-600 !text-zinc-500 data-[state=inactive]:!bg-transparent"
         >
           Danger Zone
-        </TabsTrigger>
+        </TabsTrigger> */}
       </TabsList>
 
       <TabsContent value="profile" className="mt-6 bg-zinc-900 border border-zinc-800 rounded-lg p-6">
