@@ -83,7 +83,7 @@ export function DashboardHeader() {
             <Play className="h-3.5 w-3.5 fill-zinc-900" />
             <span className="hidden sm:inline">Start Focus</span>
           </Button>
-          <Button
+          {/* <Button
             variant="outline"
             size="icon"
             className="h-8 w-8 border-zinc-800 bg-[#18181b] hover:bg-zinc-800/50"
@@ -94,7 +94,7 @@ export function DashboardHeader() {
             }}
           >
             <Bell className="h-4 w-4 text-zinc-400" />
-          </Button>
+          </Button> */}
           <UserButton />
         </div>
       </div>
