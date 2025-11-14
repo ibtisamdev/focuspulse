@@ -95,7 +95,7 @@ export function PreferencesTab({ initialData }: PreferencesTabProps) {
           value={formData.weeklyGoal}
           onChange={(e) => setFormData({ ...formData, weeklyGoal: parseInt(e.target.value) })}
           placeholder="12"
-          className="bg-[#09090b] border-zinc-800 text-zinc-50 placeholder:text-zinc-600 focus-visible:ring-2 focus-visible:ring-zinc-700"
+          className="bg-[#09090b] border-zinc-800 text-zinc-50 placeholder:text-zinc-600 focus-visible:ring-2 focus-visible:ring-zinc-700 [appearance:textfield] [&::-webkit-inner-spin-button]:[-webkit-appearance:none] [&::-webkit-outer-spin-button]:[-webkit-appearance:none]"
         />
         <p className="text-xs text-zinc-500">
           Set your target deep work hours per week
@@ -103,7 +103,7 @@ export function PreferencesTab({ initialData }: PreferencesTabProps) {
       </div>
 
       {/* Default Session Duration */}
-      <div className="space-y-2">
+      {/* <div className="space-y-2">
         <Label htmlFor="sessionDuration" className="text-sm font-medium text-zinc-400">
           Default Session Duration (minutes)
         </Label>
@@ -135,7 +135,7 @@ export function PreferencesTab({ initialData }: PreferencesTabProps) {
         <p className="text-xs text-zinc-500">
           Default duration for new focus sessions
         </p>
-      </div>
+      </div> */}
 
       {/* Time Zone */}
       {/* <div className="space-y-2">
