@@ -35,7 +35,7 @@ export default async function SessionPage({
   const title = titleParam || 'Deep Work Session'
 
   // Create new session in database
-  const sessionResult = await createSession(title, false)
+  const sessionResult = await createSession(title)
 
   // Handle error case
   if ('error' in sessionResult) {

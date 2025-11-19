@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { format } from 'date-fns'
+import { CalendarIcon } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -21,8 +23,16 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Calendar } from '@/components/ui/calendar'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import { createPlannedBlock, updatePlannedBlock } from '@/app/actions/planner'
+import { extractTimeString, combineDateAndTime } from '@/lib/utils/planner-db'
 import type { PlannedBlock } from '@prisma/client'
+import { cn } from '@/lib/utils'
 
 interface EventModalProps {
   open: boolean
@@ -68,12 +78,33 @@ export function EventModal({
     existingBlock?.dayOfWeek ?? defaultDay ?? new Date().getDay()
   )
   const [startTime, setStartTime] = useState(
-    existingBlock?.startTime || defaultTime || '09:00'
+    existingBlock?.startTime ? extractTimeString(existingBlock.startTime) : (defaultTime || '09:00')
   )
   const [duration, setDuration] = useState(existingBlock?.duration || 90)
   const [isRecurring, setIsRecurring] = useState(existingBlock?.isRecurring || false)
+  const [specificDate, setSpecificDate] = useState<Date | undefined>(() => {
+    // If editing an existing block with a specificDate, use it
+    if (existingBlock?.specificDate) {
+      return new Date(existingBlock.specificDate)
+    }
+    // For new non-recurring events, initialize with today's date
+    // (This provides a better UX - user can adjust from here)
+    if (!existingBlock && !isRecurring) {
+      return new Date()
+    }
+    return undefined
+  })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Update dayOfWeek when specificDate changes
+  const handleDateChange = (date: Date | undefined) => {
+    setSpecificDate(date)
+    if (date) {
+      // Update dayOfWeek to match the selected date
+      setDayOfWeek(date.getDay())
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -81,22 +112,50 @@ export function EventModal({
     setError(null)
 
     try {
+      // Convert time string to DateTime
+      // For recurring events, use epoch date (1970-01-01)
+      // For one-time events, use specificDate
+      const referenceDate = isRecurring
+        ? new Date('1970-01-01')
+        : (specificDate || new Date())
+      const startTimeDate = combineDateAndTime(referenceDate, startTime)
+
+      // For non-recurring events, derive dayOfWeek from specificDate
+      // For recurring events, use the selected dayOfWeek
+      const dayOfWeekValue = isRecurring
+        ? dayOfWeek
+        : (specificDate ? specificDate.getDay() : undefined)
+
       if (mode === 'create') {
         await createPlannedBlock({
           title,
-          dayOfWeek,
-          startTime,
+          dayOfWeek: dayOfWeekValue,
+          startTime: startTimeDate,
           duration,
           isRecurring,
+          specificDate,
+          // New required fields with defaults
+          category: 'OTHER' as const,
+          priority: 0,
+          tags: [],
+          recurrenceDays: [],
+          isActive: true,
         })
       } else if (existingBlock) {
         await updatePlannedBlock({
           id: existingBlock.id,
           title,
-          dayOfWeek,
-          startTime,
+          dayOfWeek: dayOfWeekValue,
+          startTime: startTimeDate,
           duration,
           isRecurring,
+          specificDate,
+          // Preserve existing values or use defaults
+          category: existingBlock.category,
+          priority: existingBlock.priority,
+          tags: existingBlock.tags,
+          recurrenceDays: existingBlock.recurrenceDays,
+          isActive: existingBlock.isActive,
         })
       }
 
@@ -116,6 +175,7 @@ export function EventModal({
     setStartTime('09:00')
     setDuration(90)
     setIsRecurring(false)
+    setSpecificDate(undefined)
     setError(null)
   }
 
@@ -139,11 +199,11 @@ export function EventModal({
         </DialogHeader>
 
         <form onSubmit={handleSubmit}>
-          <div className="space-y-5 py-4">
-            {/* Title */}
-            <div className="space-y-2">
+          <div className="py-4">
+            {/* GROUP 1: Title */}
+            <div className="space-y-2 mb-6">
               <Label htmlFor="title" className="text-zinc-200 font-medium">
-                Title
+                Title <span className="text-red-400">*</span>
               </Label>
               <Input
                 id="title"
@@ -156,84 +216,8 @@ export function EventModal({
               />
             </div>
 
-            {/* Day of Week and Start Time - Side by side */}
-            <div className="grid grid-cols-2 gap-4">
-              {/* Day of Week */}
-              <div className="space-y-2">
-                <Label htmlFor="day" className="text-zinc-200 font-medium">
-                  Day of Week
-                </Label>
-                <Select
-                  value={String(dayOfWeek)}
-                  onValueChange={(value) => setDayOfWeek(Number(value))}
-                >
-                  <SelectTrigger
-                    id="day"
-                    className="bg-zinc-900 border-zinc-700 text-zinc-100"
-                  >
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-zinc-900 border-zinc-700">
-                    {DAYS_OF_WEEK.map((day) => (
-                      <SelectItem
-                        key={day.value}
-                        value={String(day.value)}
-                        className="text-zinc-100 focus:bg-zinc-800 focus:text-zinc-50"
-                      >
-                        {day.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Start Time */}
-              <div className="space-y-2">
-                <Label htmlFor="startTime" className="text-zinc-200 font-medium">
-                  Start Time
-                </Label>
-                <Input
-                  id="startTime"
-                  type="time"
-                  value={startTime}
-                  onChange={(e) => setStartTime(e.target.value)}
-                  required
-                  className="bg-zinc-900 border-zinc-700 text-zinc-100"
-                />
-              </div>
-            </div>
-
-            {/* Duration */}
-            <div className="space-y-2">
-              <Label htmlFor="duration" className="text-zinc-200 font-medium">
-                Duration
-              </Label>
-              <Select
-                value={String(duration)}
-                onValueChange={(value) => setDuration(Number(value))}
-              >
-                <SelectTrigger
-                  id="duration"
-                  className="bg-zinc-900 border-zinc-700 text-zinc-100"
-                >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-zinc-900 border-zinc-700">
-                  {DURATION_OPTIONS.map((option) => (
-                    <SelectItem
-                      key={option.value}
-                      value={String(option.value)}
-                      className="text-zinc-100 focus:bg-zinc-800 focus:text-zinc-50"
-                    >
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Recurring Checkbox */}
-            <div className="flex items-center space-x-3 pt-2">
+            {/* GROUP 2: Recurring Decision */}
+            <div className="flex items-center space-x-3 mb-5">
               <Checkbox
                 id="recurring"
                 checked={isRecurring}
@@ -246,6 +230,138 @@ export function EventModal({
               >
                 Repeat every week
               </Label>
+            </div>
+
+            {/* GROUP 3: Date & Time Fields */}
+            <div className="space-y-4 mb-5">
+              {isRecurring ? (
+                <>
+                  {/* Recurring: Day of Week + Start Time side by side */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="day" className="text-zinc-200 font-medium">
+                        Day of Week <span className="text-red-400">*</span>
+                      </Label>
+                      <Select
+                        value={String(dayOfWeek)}
+                        onValueChange={(value) => setDayOfWeek(Number(value))}
+                      >
+                        <SelectTrigger
+                          id="day"
+                          className="bg-zinc-900 border-zinc-700 text-zinc-100"
+                        >
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-zinc-900 border-zinc-700">
+                          {DAYS_OF_WEEK.map((day) => (
+                            <SelectItem
+                              key={day.value}
+                              value={String(day.value)}
+                              className="text-zinc-100 focus:bg-zinc-800 focus:text-zinc-50"
+                            >
+                              {day.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="startTime" className="text-zinc-200 font-medium">
+                        Start Time <span className="text-red-400">*</span>
+                      </Label>
+                      <Input
+                        id="startTime"
+                        type="time"
+                        value={startTime}
+                        onChange={(e) => setStartTime(e.target.value)}
+                        required
+                        className="bg-zinc-900 border-zinc-700 text-zinc-100"
+                      />
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* One-time: Specific Date, then Start Time */}
+                  <div className="space-y-2">
+                    <Label htmlFor="date" className="text-zinc-200 font-medium">
+                      Specific Date <span className="text-red-400">*</span>
+                    </Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          id="date"
+                          variant="outline"
+                          className={cn(
+                            'w-full justify-start text-left font-normal bg-zinc-900 border-zinc-700 text-zinc-100 hover:bg-zinc-800 hover:text-zinc-50',
+                            !specificDate && 'text-zinc-500'
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {specificDate ? (
+                            format(specificDate, 'PPP')
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 bg-zinc-900 border-zinc-700">
+                        <Calendar
+                          mode="single"
+                          selected={specificDate}
+                          onSelect={handleDateChange}
+                          initialFocus
+                          className="bg-zinc-900"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="startTime" className="text-zinc-200 font-medium">
+                      Start Time <span className="text-red-400">*</span>
+                    </Label>
+                    <Input
+                      id="startTime"
+                      type="time"
+                      value={startTime}
+                      onChange={(e) => setStartTime(e.target.value)}
+                      required
+                      className="bg-zinc-900 border-zinc-700 text-zinc-100"
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* Duration */}
+              <div className="space-y-2">
+                <Label htmlFor="duration" className="text-zinc-200 font-medium">
+                  Duration
+                </Label>
+                <Select
+                  value={String(duration)}
+                  onValueChange={(value) => setDuration(Number(value))}
+                >
+                  <SelectTrigger
+                    id="duration"
+                    className="bg-zinc-900 border-zinc-700 text-zinc-100"
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-zinc-900 border-zinc-700">
+                    {DURATION_OPTIONS.map((option) => (
+                      <SelectItem
+                        key={option.value}
+                        value={String(option.value)}
+                        className="text-zinc-100 focus:bg-zinc-800 focus:text-zinc-50"
+                      >
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             {/* Error Message */}

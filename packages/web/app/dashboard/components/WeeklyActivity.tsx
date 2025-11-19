@@ -46,6 +46,7 @@ export function WeeklyActivity({ weeklyData, weeklyGoalHours = 12 }: WeeklyActiv
                   <Progress
                     value={percentage}
                     className="h-8 bg-zinc-900 border border-zinc-800"
+                    indicatorClassName="bg-zinc-500"
                   />
                 </div>
                 <span className="text-xs text-zinc-400 w-12 text-right">{hoursDisplay}</span>

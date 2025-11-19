@@ -67,6 +67,7 @@ export function WeeklyOverview({ thisWeekData, lastWeekData }: WeeklyOverviewPro
                   <Progress
                     value={percentage}
                     className="h-8 bg-zinc-900 border border-zinc-800"
+                    indicatorClassName="bg-zinc-500"
                   />
                 </div>
                 <span className="text-xs text-zinc-400 w-12 text-right">

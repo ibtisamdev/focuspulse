@@ -13,6 +13,7 @@
 import { auth, currentUser, clerkClient } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
+import { calculateSessionDuration, extractTimeString } from '@/lib/utils/planner-db'
 
 /**
  * Update user profile information
@@ -46,9 +47,10 @@ export async function updateProfile(data: {
     revalidatePath('/dashboard/settings')
 
     return { success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error updating profile:', error)
-    return { success: false, error: error.message || 'Failed to update profile' }
+    const errorMessage = error instanceof Error ? error.message : 'Failed to update profile'
+    return { success: false, error: errorMessage }
   }
 }
 
@@ -96,15 +98,17 @@ export async function updateAvatar(formData: FormData) {
     revalidatePath('/dashboard/settings')
 
     return { success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error updating avatar:', error)
 
     // Check for common Clerk errors
-    if (error.clerkError) {
-      return { success: false, error: error.errors?.[0]?.message || 'Failed to update avatar' }
+    if (error && typeof error === 'object' && 'clerkError' in error) {
+      const clerkError = error as { errors?: Array<{ message?: string }> }
+      return { success: false, error: clerkError.errors?.[0]?.message || 'Failed to update avatar' }
     }
 
-    return { success: false, error: error.message || 'Failed to update avatar' }
+    const errorMessage = error instanceof Error ? error.message : 'Failed to update avatar'
+    return { success: false, error: errorMessage }
   }
 }
 
@@ -139,12 +143,13 @@ export async function updatePassword(data: {
     })
 
     return { success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error updating password:', error)
 
     // Check for common Clerk errors
-    if (error.clerkError) {
-      return { success: false, error: error.errors?.[0]?.message || 'Failed to update password' }
+    if (error && typeof error === 'object' && 'clerkError' in error) {
+      const clerkError = error as { errors?: Array<{ message?: string }> }
+      return { success: false, error: clerkError.errors?.[0]?.message || 'Failed to update password' }
     }
 
     return { success: false, error: 'Failed to update password' }
@@ -199,9 +204,10 @@ export async function updatePreferences(data: {
     revalidatePath('/dashboard/settings')
 
     return { success: true }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error updating preferences:', error)
-    return { success: false, error: error.message || 'Failed to update preferences' }
+    const errorMessage = error instanceof Error ? error.message : 'Failed to update preferences'
+    return { success: false, error: errorMessage }
   }
 }
 
@@ -253,26 +259,27 @@ export async function exportUserData() {
         title: session.title,
         startTime: session.startTime,
         endTime: session.endTime,
-        duration: session.duration,
+        duration: calculateSessionDuration(session), // Calculated instead of stored
         notes: session.notes,
-        isPlanned: session.isPlanned,
+        isPlanned: !!session.plannedBlockId, // Derived from plannedBlockId
         completed: session.completed,
         breakCount: session.breakCount,
         totalBreakTime: session.totalBreakTime,
       })),
       plannedBlocks: user.plannedBlocks.map(block => ({
         title: block.title,
-        dayOfWeek: block.dayOfWeek,
-        startTime: block.startTime,
+        dayOfWeek: block.dayOfWeek ?? (block.specificDate ? block.specificDate.getDay() : null),
+        startTime: extractTimeString(block.startTime), // Format DateTime to HH:MM
         duration: block.duration,
         isRecurring: block.isRecurring,
+        specificDate: block.specificDate ? block.specificDate.toISOString() : null,
         isActive: block.isActive,
       })),
       exportedAt: new Date().toISOString(),
     }
 
     return { success: true, data: exportData }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error exporting user data:', error)
     return { success: false, error: 'Failed to export data', data: null }
   }
@@ -298,7 +305,7 @@ export async function deleteAccount() {
     await client.users.deleteUser(userId)
 
     return { success: true }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error deleting account:', error)
     return { success: false, error: 'Failed to delete account' }
   }

@@ -23,7 +23,9 @@ export function QuickActions() {
       title: 'Add New Task',
       description: 'Create a new task',
       icon: <Plus className="h-[18px] w-[18px] text-zinc-400" />,
-      onClick: () => console.log('Add new task clicked'),
+      onClick: () => {
+        // TODO: Implement task creation functionality
+      },
     },
     {
       title: 'View Planner',

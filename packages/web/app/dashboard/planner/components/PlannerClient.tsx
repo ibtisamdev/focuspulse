@@ -89,7 +89,7 @@ export function PlannerClient({ initialBlocks }: PlannerClientProps) {
   }
 
   const handleStartSession = async (event: PlannerEvent) => {
-    const result = await createSession(event.title, true) // true = isPlanned
+    const result = await createSession(event.title, event.id) // Pass plannedBlockId
 
     if ('error' in result) {
       alert(result.error || 'Failed to start session. Please try again.')

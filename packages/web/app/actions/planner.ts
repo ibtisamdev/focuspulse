@@ -9,6 +9,7 @@ import {
   type PlannedBlockInput,
   type UpdatePlannedBlockInput,
 } from '@/lib/validations/planner'
+import { extractTimeString } from '@/lib/utils/planner-db'
 
 // Helper to verify user authentication and get database user ID
 async function getDbUserId() {
@@ -51,6 +52,9 @@ export async function getPlannedBlocks() {
 
 /**
  * Get planned blocks for a specific day of week
+ * Includes recurring blocks for that day
+ * Note: One-time events now have dayOfWeek=null, so they won't be included here.
+ * Use getAllPlannedBlocks() or filter by specificDate for one-time events.
  */
 export async function getPlannedBlocksForDay(dayOfWeek: number) {
   const userId = await getDbUserId()
@@ -59,6 +63,7 @@ export async function getPlannedBlocksForDay(dayOfWeek: number) {
     where: {
       userId,
       dayOfWeek,
+      isRecurring: true, // Only recurring blocks have dayOfWeek populated
       isActive: true,
     },
     orderBy: {
@@ -78,6 +83,44 @@ export async function getPlannedBlocksForToday() {
 }
 
 /**
+ * Get planned blocks for a specific date range
+ */
+export async function getPlannedBlocksForDateRange(startDate: Date, endDate: Date) {
+  const userId = await getDbUserId()
+
+  const blocks = await db.plannedBlock.findMany({
+    where: {
+      userId,
+      isActive: true,
+      OR: [
+        // Recurring blocks (show in all date ranges unless past recurrenceEndDate)
+        {
+          isRecurring: true,
+          OR: [
+            { recurrenceEndDate: null },
+            { recurrenceEndDate: { gte: startDate } },
+          ],
+        },
+        // One-time events within the date range
+        {
+          isRecurring: false,
+          specificDate: {
+            gte: startDate,
+            lte: endDate,
+          },
+        },
+      ],
+    },
+    orderBy: [
+      { dayOfWeek: 'asc' },
+      { startTime: 'asc' },
+    ],
+  })
+
+  return blocks
+}
+
+/**
  * Create a new planned block
  */
 export async function createPlannedBlock(input: PlannedBlockInput) {
@@ -86,12 +129,19 @@ export async function createPlannedBlock(input: PlannedBlockInput) {
   // Validate input
   const validated = plannedBlockSchema.parse(input)
 
+  // For conflict checking, we need dayOfWeek even for one-time events
+  // If not provided (one-time event), calculate from specificDate
+  const dayOfWeekForConflicts = validated.dayOfWeek ??
+    (validated.specificDate ? validated.specificDate.getDay() : new Date().getDay())
+
   // Check for conflicts (overlapping time blocks on same day)
   const conflicts = await checkTimeConflicts(
     userId,
-    validated.dayOfWeek,
+    dayOfWeekForConflicts,
     validated.startTime,
-    validated.duration
+    validated.duration,
+    validated.isRecurring,
+    validated.specificDate
   )
 
   if (conflicts.length > 0) {
@@ -135,12 +185,20 @@ export async function updatePlannedBlock(input: UpdatePlannedBlockInput) {
   }
 
   // Check for conflicts (excluding current block)
-  if (updateData.dayOfWeek !== undefined && updateData.startTime && updateData.duration) {
+  if (updateData.startTime && updateData.duration) {
+    // Calculate dayOfWeek for conflict checking if not provided
+    const dayOfWeekForConflicts = updateData.dayOfWeek ??
+      existing.dayOfWeek ??
+      (updateData.specificDate ? updateData.specificDate.getDay() :
+       existing.specificDate ? existing.specificDate.getDay() : new Date().getDay())
+
     const conflicts = await checkTimeConflicts(
       userId,
-      updateData.dayOfWeek,
+      dayOfWeekForConflicts,
       updateData.startTime,
       updateData.duration,
+      updateData.isRecurring ?? existing.isRecurring,
+      updateData.specificDate ?? existing.specificDate,
       id
     )
 
@@ -218,32 +276,74 @@ export async function togglePlannedBlock(id: string, isActive: boolean) {
 
 /**
  * Check for time conflicts with existing blocks
+ * Now works with DateTime instead of string times
  */
 async function checkTimeConflicts(
   userId: string,
   dayOfWeek: number,
-  startTime: string,
+  startTime: Date,
   duration: number,
+  isRecurring: boolean,
+  specificDate?: Date | null,
   excludeId?: string
 ) {
+  // Get all blocks that could potentially conflict
+  // For recurring events: get blocks with same dayOfWeek (recurring blocks)
+  // For one-time events: get recurring blocks on that day AND one-time events on the same date
   const existingBlocks = await db.plannedBlock.findMany({
     where: {
       userId,
-      dayOfWeek,
       isActive: true,
       ...(excludeId ? { id: { not: excludeId } } : {}),
+      OR: [
+        // Recurring blocks on the same day of week
+        { dayOfWeek, isRecurring: true },
+        // One-time events (will be filtered by date later)
+        { isRecurring: false },
+      ],
     },
   })
 
-  // Convert startTime (HH:MM) to minutes since midnight
-  const [startHour, startMinute] = startTime.split(':').map(Number)
-  const newStartMinutes = startHour * 60 + startMinute
-  const newEndMinutes = newStartMinutes + duration
+  // For one-time events, only check against blocks on the same specific date
+  if (!isRecurring && specificDate) {
+    // Filter to only include:
+    // 1. Recurring blocks (appear on this day every week)
+    // 2. One-time events on the same date
+    const relevantBlocks = existingBlocks.filter((block) => {
+      if (block.isRecurring) return true
+      if (!block.specificDate) return false
+
+      // Check if same date (ignoring time)
+      const blockDate = new Date(block.specificDate)
+      return (
+        blockDate.getFullYear() === specificDate.getFullYear() &&
+        blockDate.getMonth() === specificDate.getMonth() &&
+        blockDate.getDate() === specificDate.getDate()
+      )
+    })
+
+    return checkBlockOverlaps(relevantBlocks, startTime, duration)
+  }
+
+  // For recurring events, check against all blocks on this day
+  return checkBlockOverlaps(existingBlocks, startTime, duration)
+}
+
+/**
+ * Helper to check if a new block overlaps with existing blocks
+ */
+function checkBlockOverlaps(
+  existingBlocks: Array<{ startTime: Date; duration: number; title: string }>,
+  newStartTime: Date,
+  newDuration: number
+) {
+  // Extract time as minutes since midnight for easier comparison
+  const newStartMinutes = newStartTime.getHours() * 60 + newStartTime.getMinutes()
+  const newEndMinutes = newStartMinutes + newDuration
 
   // Check for overlaps
   const conflicts = existingBlocks.filter((block) => {
-    const [blockHour, blockMinute] = block.startTime.split(':').map(Number)
-    const blockStartMinutes = blockHour * 60 + blockMinute
+    const blockStartMinutes = block.startTime.getHours() * 60 + block.startTime.getMinutes()
     const blockEndMinutes = blockStartMinutes + block.duration
 
     // Check if intervals overlap
@@ -258,9 +358,16 @@ async function checkTimeConflicts(
 }
 
 /**
- * Duplicate a planned block to another day
+ * Duplicate a planned block to another day or as a recurring block
  */
-export async function duplicatePlannedBlock(id: string, targetDayOfWeek: number) {
+export async function duplicatePlannedBlock(
+  id: string,
+  targetDayOfWeek: number,
+  options?: {
+    makeRecurring?: boolean
+    recurrenceFrequency?: 'DAILY' | 'WEEKLY' | 'MONTHLY'
+  }
+) {
   const userId = await getDbUserId()
 
   // Get the source block
@@ -281,7 +388,9 @@ export async function duplicatePlannedBlock(id: string, targetDayOfWeek: number)
     userId,
     targetDayOfWeek,
     sourceBlock.startTime,
-    sourceBlock.duration
+    sourceBlock.duration,
+    options?.makeRecurring ?? sourceBlock.isRecurring,
+    sourceBlock.specificDate
   )
 
   if (conflicts.length > 0) {
@@ -290,19 +399,62 @@ export async function duplicatePlannedBlock(id: string, targetDayOfWeek: number)
     )
   }
 
-  // Create duplicate
+  // Create duplicate with all fields
   const newBlock = await db.plannedBlock.create({
     data: {
       userId,
       title: sourceBlock.title,
+      description: sourceBlock.description,
       dayOfWeek: targetDayOfWeek,
       startTime: sourceBlock.startTime,
       duration: sourceBlock.duration,
-      isRecurring: sourceBlock.isRecurring,
+      category: sourceBlock.category,
+      color: sourceBlock.color,
+      priority: sourceBlock.priority,
+      tags: sourceBlock.tags,
+      isRecurring: options?.makeRecurring ?? sourceBlock.isRecurring,
+      recurrenceFrequency: options?.recurrenceFrequency ?? sourceBlock.recurrenceFrequency,
+      recurrenceDays: sourceBlock.recurrenceDays,
+      recurrenceEndDate: sourceBlock.recurrenceEndDate,
+      specificDate: sourceBlock.specificDate,
+      reminderMinutes: sourceBlock.reminderMinutes,
       isActive: true,
     },
   })
 
   revalidatePath('/dashboard/planner')
   return newBlock
+}
+
+/**
+ * Create a session from a planned block
+ */
+export async function createSessionFromPlannedBlock(plannedBlockId: string) {
+  const userId = await getDbUserId()
+
+  const plannedBlock = await db.plannedBlock.findUnique({
+    where: { id: plannedBlockId },
+  })
+
+  if (!plannedBlock) {
+    throw new Error('Planned block not found')
+  }
+
+  if (plannedBlock.userId !== userId) {
+    throw new Error('Unauthorized')
+  }
+
+  const session = await db.session.create({
+    data: {
+      userId,
+      title: plannedBlock.title,
+      plannedBlockId: plannedBlock.id,
+      category: plannedBlock.category,
+      tags: plannedBlock.tags,
+      startTime: new Date(), // Start now
+    },
+  })
+
+  revalidatePath('/dashboard')
+  return session
 }
