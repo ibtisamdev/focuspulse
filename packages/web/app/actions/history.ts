@@ -128,11 +128,12 @@ export async function getWeeklyData(weekOffset: number = 0) {
   })
   if (!user) throw new Error('User not found')
 
-  // Calculate week boundaries (Sunday to Saturday)
+  // Calculate week boundaries (Monday to Sunday)
   const now = new Date()
-  const currentDay = now.getDay() // 0 = Sunday, 6 = Saturday
+  const currentDay = now.getDay() // 0 = Sunday, 1 = Monday, etc.
+  const daysFromMonday = (currentDay + 6) % 7 // Convert to Monday-based (0 = Monday)
   const weekStart = new Date(now)
-  weekStart.setDate(now.getDate() - currentDay + (weekOffset * 7))
+  weekStart.setDate(now.getDate() - daysFromMonday + (weekOffset * 7))
   weekStart.setHours(0, 0, 0, 0)
 
   const weekEnd = new Date(weekStart)
@@ -156,12 +157,12 @@ export async function getWeeklyData(weekOffset: number = 0) {
     },
   })
 
-  // Initialize array for 7 days (Sunday to Saturday)
+  // Initialize array for 7 days (Monday to Sunday)
   const weekData = Array.from({ length: 7 }, (_, i) => {
     const date = new Date(weekStart)
     date.setDate(weekStart.getDate() + i)
     return {
-      day: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][i],
+      day: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i],
       hours: 0,
       date: date.toISOString().split('T')[0],
     }
@@ -169,7 +170,7 @@ export async function getWeeklyData(weekOffset: number = 0) {
 
   // Aggregate sessions by day
   sessions.forEach(session => {
-    const dayIndex = session.startTime.getDay()
+    const dayIndex = (session.startTime.getDay() + 6) % 7 // Convert to Monday-based (0 = Monday)
     const duration = calculateSessionDuration(session)
     weekData[dayIndex].hours += (duration || 0) / 3600
   })
@@ -341,7 +342,7 @@ export async function getInsights() {
   // Calculate best day (day of week with highest average hours)
   const dayTotals: { [key: number]: { hours: number; count: number } } = {}
   sessions.forEach(session => {
-    const dayOfWeek = session.startTime.getDay()
+    const dayOfWeek = (session.startTime.getDay() + 6) % 7 // Convert to Monday-based (0 = Monday)
     if (!dayTotals[dayOfWeek]) {
       dayTotals[dayOfWeek] = { hours: 0, count: 0 }
     }
@@ -360,7 +361,7 @@ export async function getInsights() {
     }
   })
 
-  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+  const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
   const bestDay = {
     day: dayNames[bestDayIndex],
     avgHours: Number(bestDayAvg.toFixed(1)),

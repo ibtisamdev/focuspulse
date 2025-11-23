@@ -33,8 +33,8 @@ export const plannedBlockSchema = z
     // One-time event specific
     specificDate: z.coerce.date().optional(),
 
-    // Day of week (0-6, Sunday=0)
-    // Only required for recurring events. For one-time events, derived from specificDate.
+    // Day of week (0-6, Monday=0) - DEPRECATED: Being removed in favor of encoding day in startTime
+    // Optional during transition period. Will be calculated from startTime.
     dayOfWeek: z.number().int().min(0).max(6).optional(),
 
     // Reminders
@@ -80,19 +80,6 @@ export const plannedBlockSchema = z
     {
       message: 'At least one day must be selected for weekly recurrence',
       path: ['recurrenceDays'],
-    }
-  )
-  .refine(
-    (data) => {
-      // If recurring, dayOfWeek must be provided
-      if (data.isRecurring && data.dayOfWeek === undefined) {
-        return false
-      }
-      return true
-    },
-    {
-      message: 'Day of week is required for recurring events',
-      path: ['dayOfWeek'],
     }
   )
 

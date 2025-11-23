@@ -122,27 +122,22 @@ export function calculateSessionElapsedTime(session: Pick<Session, 'startTime' |
 
 /**
  * Get the day of week for a PlannedBlock
- * For recurring events: use stored dayOfWeek
+ * For recurring events: calculate from startTime (which encodes the day)
  * For one-time events: calculate from specificDate
  * @param block - PlannedBlock from database
- * @returns Day of week (0-6, Sunday=0)
+ * @returns Day of week (0-6, Monday=0)
  */
-export function getBlockDayOfWeek(block: Pick<PlannedBlock, 'dayOfWeek' | 'specificDate' | 'isRecurring'>): number {
-  if (block.dayOfWeek !== null && block.dayOfWeek !== undefined) {
-    return block.dayOfWeek
-  }
-  // For one-time events without dayOfWeek, derive from specificDate
-  if (block.specificDate) {
-    return block.specificDate.getDay()
-  }
-  // Fallback (shouldn't happen with valid data)
-  return new Date().getDay()
+export function getBlockDayOfWeek(block: Pick<PlannedBlock, 'startTime' | 'specificDate' | 'isRecurring'>): number {
+  // For one-time events, use specificDate if available
+  const date = !block.isRecurring && block.specificDate ? block.specificDate : block.startTime
+  // Convert JavaScript day (0=Sunday) to Monday-based (0=Monday)
+  return (date.getDay() + 6) % 7
 }
 
 /**
  * Get the date for a specific day of week in a given week
- * @param weekStartDate - Start date of the week (Sunday)
- * @param dayOfWeek - Day of week (0 = Sunday, 6 = Saturday)
+ * @param weekStartDate - Start date of the week (Monday)
+ * @param dayOfWeek - Day of week (0 = Monday, 6 = Sunday)
  * @returns Date object for that day
  */
 export function getDateForDayOfWeek(weekStartDate: Date, dayOfWeek: number): Date {

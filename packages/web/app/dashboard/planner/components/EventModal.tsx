@@ -44,13 +44,13 @@ interface EventModalProps {
 }
 
 const DAYS_OF_WEEK = [
-  { value: 0, label: 'Sunday' },
-  { value: 1, label: 'Monday' },
-  { value: 2, label: 'Tuesday' },
-  { value: 3, label: 'Wednesday' },
-  { value: 4, label: 'Thursday' },
-  { value: 5, label: 'Friday' },
-  { value: 6, label: 'Saturday' },
+  { value: 0, label: 'Monday' },
+  { value: 1, label: 'Tuesday' },
+  { value: 2, label: 'Wednesday' },
+  { value: 3, label: 'Thursday' },
+  { value: 4, label: 'Friday' },
+  { value: 5, label: 'Saturday' },
+  { value: 6, label: 'Sunday' },
 ]
 
 const DURATION_OPTIONS = [
@@ -74,9 +74,19 @@ export function EventModal({
   defaultTime,
 }: EventModalProps) {
   const [title, setTitle] = useState(existingBlock?.title || '')
-  const [dayOfWeek, setDayOfWeek] = useState<number>(
-    existingBlock?.dayOfWeek ?? defaultDay ?? new Date().getDay()
-  )
+  const [dayOfWeek, setDayOfWeek] = useState<number>(() => {
+    // Calculate from existingBlock's startTime or specificDate if available
+    if (existingBlock) {
+      const date = existingBlock.specificDate || existingBlock.startTime
+      return (date.getDay() + 6) % 7 // Convert to Monday-based (0 = Monday)
+    }
+    // Use defaultDay if provided (already Monday-based from getBlockDayOfWeek)
+    if (defaultDay !== undefined) {
+      return defaultDay
+    }
+    // Fallback to current day (convert to Monday-based)
+    return (new Date().getDay() + 6) % 7
+  })
   const [startTime, setStartTime] = useState(
     existingBlock?.startTime ? extractTimeString(existingBlock.startTime) : (defaultTime || '09:00')
   )
@@ -101,8 +111,8 @@ export function EventModal({
   const handleDateChange = (date: Date | undefined) => {
     setSpecificDate(date)
     if (date) {
-      // Update dayOfWeek to match the selected date
-      setDayOfWeek(date.getDay())
+      // Update dayOfWeek to match the selected date (convert to Monday-based)
+      setDayOfWeek((date.getDay() + 6) % 7)
     }
   }
 
@@ -113,18 +123,24 @@ export function EventModal({
 
     try {
       // Convert time string to DateTime
-      // For recurring events, use epoch date (1970-01-01)
+      // For recurring events, use reference week date (2024-01-01 = Monday) to encode day
       // For one-time events, use specificDate
       const referenceDate = isRecurring
-        ? new Date('1970-01-01')
+        ? (() => {
+            // Reference week: 2024-01-01 (Monday) through 2024-01-07 (Sunday)
+            const referenceWeekStart = new Date('2024-01-01') // Monday
+            const targetDate = new Date(referenceWeekStart)
+            targetDate.setDate(referenceWeekStart.getDate() + dayOfWeek) // Add day offset
+            return targetDate
+          })()
         : (specificDate || new Date())
       const startTimeDate = combineDateAndTime(referenceDate, startTime)
 
-      // For non-recurring events, derive dayOfWeek from specificDate
-      // For recurring events, use the selected dayOfWeek
+      // For non-recurring events, derive dayOfWeek from specificDate (Monday-based)
+      // For recurring events, use the selected dayOfWeek (already Monday-based from state)
       const dayOfWeekValue = isRecurring
         ? dayOfWeek
-        : (specificDate ? specificDate.getDay() : undefined)
+        : (specificDate ? (specificDate.getDay() + 6) % 7 : undefined)
 
       if (mode === 'create') {
         await createPlannedBlock({
@@ -171,7 +187,7 @@ export function EventModal({
 
   const resetForm = () => {
     setTitle('')
-    setDayOfWeek(new Date().getDay())
+    setDayOfWeek((new Date().getDay() + 6) % 7) // Convert to Monday-based
     setStartTime('09:00')
     setDuration(90)
     setIsRecurring(false)

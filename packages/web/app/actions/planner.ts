@@ -78,7 +78,7 @@ export async function getPlannedBlocksForDay(dayOfWeek: number) {
  * Get planned blocks for today
  */
 export async function getPlannedBlocksForToday() {
-  const today = new Date().getDay() // 0 = Sunday, 6 = Saturday
+  const today = (new Date().getDay() + 6) % 7 // Convert to Monday-based (0 = Monday)
   return getPlannedBlocksForDay(today)
 }
 
@@ -129,10 +129,10 @@ export async function createPlannedBlock(input: PlannedBlockInput) {
   // Validate input
   const validated = plannedBlockSchema.parse(input)
 
-  // For conflict checking, we need dayOfWeek even for one-time events
+  // For conflict checking, we need dayOfWeek even for one-time events (Monday-based)
   // If not provided (one-time event), calculate from specificDate
   const dayOfWeekForConflicts = validated.dayOfWeek ??
-    (validated.specificDate ? validated.specificDate.getDay() : new Date().getDay())
+    (validated.specificDate ? (validated.specificDate.getDay() + 6) % 7 : (new Date().getDay() + 6) % 7)
 
   // Check for conflicts (overlapping time blocks on same day)
   const conflicts = await checkTimeConflicts(
@@ -186,11 +186,11 @@ export async function updatePlannedBlock(input: UpdatePlannedBlockInput) {
 
   // Check for conflicts (excluding current block)
   if (updateData.startTime && updateData.duration) {
-    // Calculate dayOfWeek for conflict checking if not provided
+    // Calculate dayOfWeek for conflict checking if not provided (Monday-based)
     const dayOfWeekForConflicts = updateData.dayOfWeek ??
       existing.dayOfWeek ??
-      (updateData.specificDate ? updateData.specificDate.getDay() :
-       existing.specificDate ? existing.specificDate.getDay() : new Date().getDay())
+      (updateData.specificDate ? (updateData.specificDate.getDay() + 6) % 7 :
+       existing.specificDate ? (existing.specificDate.getDay() + 6) % 7 : (new Date().getDay() + 6) % 7)
 
     const conflicts = await checkTimeConflicts(
       userId,

@@ -12,13 +12,14 @@ export function getWeekNumber(date: Date): number {
 }
 
 /**
- * Gets the start of the week (Sunday) for a given date
- * Note: Returns Sunday as start to match dayOfWeek in PlannedBlock (0 = Sunday)
+ * Gets the start of the week (Monday) for a given date
+ * Note: Returns Monday as start (Monday = 0 in our system)
  */
 export function getStartOfWeek(date: Date): Date {
   const d = new Date(date);
-  const day = d.getDay();
-  const diff = d.getDate() - day; // Sunday is day 0
+  const day = d.getDay(); // 0 = Sunday, 1 = Monday, etc.
+  const daysFromMonday = (day + 6) % 7; // Convert to Monday-based (0 = Monday)
+  const diff = d.getDate() - daysFromMonday; // Monday is day 0
   return new Date(d.setDate(diff));
 }
 

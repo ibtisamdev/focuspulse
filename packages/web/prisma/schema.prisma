@@ -95,9 +95,9 @@ model PlannedBlock {
   title       String
   description String?   // More detailed description
 
-  // Time - changed from String "HH:MM" to full DateTime
-  // For recurring events: time component is what matters, date is reference (e.g., 1970-01-01)
-  // For one-time events: full date and time
+  // Time - full DateTime field
+  // For recurring events: date encodes day of week (2024-01-01=Monday through 2024-01-07=Sunday), time is scheduled time
+  // For one-time events: full date and time of the event
   startTime   DateTime
   duration    Int       // Duration in minutes
 
@@ -110,15 +110,11 @@ model PlannedBlock {
   // Recurrence settings
   isRecurring         Boolean              @default(false)
   recurrenceFrequency RecurrenceFrequency?
-  recurrenceDays      Int[]                @default([]) // For WEEKLY: [0,2,4] = Sun, Tue, Thu
+  recurrenceDays      Int[]                @default([]) // For WEEKLY: [0,2,4] = Mon, Wed, Fri (Monday-based)
   recurrenceEndDate   DateTime?            // When the recurrence pattern ends
 
   // One-time event specific (required when isRecurring = false)
   specificDate DateTime?
-
-  // Day of week (0-6, Sunday=0)
-  // Only populated for recurring events. For one-time events, derive from specificDate on read.
-  dayOfWeek    Int?
 
   // Reminders
   reminderMinutes Int?  // Notify X minutes before the event
@@ -135,7 +131,6 @@ model PlannedBlock {
   sessions    Session[] // Sessions created from this planned block
 
   @@index([userId])
-  @@index([userId, dayOfWeek])
   @@index([userId, isActive])
   @@index([userId, category])
   @@index([specificDate])
