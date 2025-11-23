@@ -9,7 +9,6 @@ import {
   type PlannedBlockInput,
   type UpdatePlannedBlockInput,
 } from '@/lib/validations/planner'
-import { extractTimeString } from '@/lib/utils/planner-db'
 
 // Helper to verify user authentication and get database user ID
 async function getDbUserId() {
