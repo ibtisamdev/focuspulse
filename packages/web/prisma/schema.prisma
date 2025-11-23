@@ -23,6 +23,19 @@ enum RecurrenceFrequency {
   MONTHLY
 }
 
+enum ProjectStatus {
+  ACTIVE
+  ON_HOLD
+  COMPLETED
+  ARCHIVED
+}
+
+enum ProjectRole {
+  OWNER
+  MEMBER
+  VIEWER
+}
+
 model User {
   id                     String         @id @default(cuid())
   clerkId                String         @unique
@@ -38,9 +51,11 @@ model User {
   sessionReminders       Boolean        @default(true)
   streakAlerts           Boolean        @default(false)
   theme                  String         @default("dark")
-  timezone               String         @default("UTC")
+  timezone               String           @default("UTC")
   plannedBlocks          PlannedBlock[]
   sessions               Session[]
+  projects               Project[]        // Projects owned by user
+  projectMemberships     ProjectMember[]  // Projects user is a member of
 
   @@index([clerkId])
   @@index([email])
@@ -57,6 +72,10 @@ model Session {
   // Planning relationship - links session to the planned block that created it
   plannedBlockId String?
   plannedBlock   PlannedBlock?  @relation(fields: [plannedBlockId], references: [id], onDelete: SetNull)
+
+  // Project relationship - links session to a project
+  projectId      String?
+  project        Project?       @relation(fields: [projectId], references: [id], onDelete: SetNull)
 
   // Categorization
   category       BlockCategory  @default(OTHER)
@@ -86,7 +105,9 @@ model Session {
   @@index([completed])
   @@index([userId, startTime])
   @@index([plannedBlockId])
+  @@index([projectId])
   @@index([userId, category])
+  @@index([userId, projectId])
 }
 
 model PlannedBlock {
@@ -100,6 +121,10 @@ model PlannedBlock {
   // For one-time events: full date and time of the event
   startTime   DateTime
   duration    Int       // Duration in minutes
+
+  // Project relationship - links planned block to a project
+  projectId   String?
+  project     Project?      @relation(fields: [projectId], references: [id], onDelete: SetNull)
 
   // Categorization
   category    BlockCategory @default(OTHER)
@@ -133,6 +158,62 @@ model PlannedBlock {
   @@index([userId])
   @@index([userId, isActive])
   @@index([userId, category])
+  @@index([projectId])
+  @@index([userId, projectId])
   @@index([specificDate])
   @@index([isRecurring])
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  userId      String        // Project owner
+  name        String
+  description String?
+
+  // Visual identity
+  color       String?       // Hex color for UI (e.g., "#3b82f6")
+  icon        String?       // Icon identifier or emoji
+
+  // Status and progress
+  status      ProjectStatus @default(ACTIVE)
+  progress    Int           @default(0) // 0-100 percentage
+
+  // Dates
+  startDate   DateTime?
+  dueDate     DateTime?
+  completedAt DateTime?
+
+  // Metadata
+  isPersonal  Boolean       @default(true) // For future team features
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Relations
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessions        Session[]       // Sessions linked to this project
+  plannedBlocks   PlannedBlock[]  // Planned blocks linked to this project
+  members         ProjectMember[] // Team members (for future collaboration)
+
+  @@index([userId])
+  @@index([userId, status])
+  @@index([status])
+  @@index([dueDate])
+}
+
+model ProjectMember {
+  id        String      @id @default(cuid())
+  projectId String
+  userId    String
+  role      ProjectRole @default(MEMBER)
+  joinedAt  DateTime    @default(now())
+  invitedBy String?     // userId of who invited them
+
+  // Relations
+  project   Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId]) // A user can only be a member of a project once
+  @@index([projectId])
+  @@index([userId])
+  @@index([projectId, role])
 }

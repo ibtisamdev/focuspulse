@@ -49,6 +49,15 @@ export function DashboardHeader({ hasActiveSession = false }: DashboardHeaderPro
               Planner
             </Link>
             <Link
+              href="/projects"
+              className={cn(
+                'transition-colors',
+                isActive('/projects') ? 'text-zinc-50' : 'text-zinc-400 hover:text-zinc-300'
+              )}
+            >
+              Projects
+            </Link>
+            <Link
               href="/dashboard/history"
               className={cn(
                 'transition-colors',

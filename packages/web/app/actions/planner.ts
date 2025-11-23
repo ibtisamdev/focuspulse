@@ -40,6 +40,15 @@ export async function getPlannedBlocks() {
       userId,
       isActive: true,
     },
+    include: {
+      project: {
+        select: {
+          id: true,
+          name: true,
+          color: true,
+        },
+      },
+    },
     orderBy: [
       { startTime: 'asc' },
     ],
@@ -62,6 +71,15 @@ export async function getPlannedBlocksForDay(dayOfWeek: number) {
       userId,
       isRecurring: true,
       isActive: true,
+    },
+    include: {
+      project: {
+        select: {
+          id: true,
+          name: true,
+          color: true,
+        },
+      },
     },
     orderBy: {
       startTime: 'asc',
@@ -114,6 +132,15 @@ export async function getPlannedBlocksForDateRange(startDate: Date, endDate: Dat
         },
       ],
     },
+    include: {
+      project: {
+        select: {
+          id: true,
+          name: true,
+          color: true,
+        },
+      },
+    },
     orderBy: [
       { startTime: 'asc' },
     ],
@@ -152,10 +179,13 @@ export async function createPlannedBlock(input: PlannedBlockInput) {
     )
   }
 
+  // Exclude dayOfWeek from database operations (it's deprecated and calculated from startTime)
+  const { dayOfWeek: _dayOfWeek, ...dataToSave } = validated
+
   const block = await db.plannedBlock.create({
     data: {
       userId,
-      ...validated,
+      ...dataToSave,
     },
   })
 
@@ -171,7 +201,7 @@ export async function updatePlannedBlock(input: UpdatePlannedBlockInput) {
 
   // Validate input
   const validated = updatePlannedBlockSchema.parse(input)
-  const { id, ...updateData } = validated
+  const { id, dayOfWeek: _dayOfWeek, ...updateData } = validated
 
   // Verify ownership
   const existing = await db.plannedBlock.findUnique({
@@ -190,7 +220,7 @@ export async function updatePlannedBlock(input: UpdatePlannedBlockInput) {
   if (updateData.startTime && updateData.duration) {
     // Calculate dayOfWeek for conflict checking (Monday-based)
     // Use startTime to determine day for recurring events
-    const dayOfWeekForConflicts = updateData.dayOfWeek ??
+    const dayOfWeekForConflicts = _dayOfWeek ??
       (updateData.specificDate ? (updateData.specificDate.getDay() + 6) % 7 :
        existing.specificDate ? (existing.specificDate.getDay() + 6) % 7 :
        (existing.startTime.getDay() + 6) % 7)

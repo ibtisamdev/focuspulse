@@ -13,7 +13,7 @@ import { createSession, updateSession, endSession, getUserStats, getActiveSessio
 export default async function SessionPage({
   searchParams,
 }: {
-  searchParams: Promise<{ title?: string }>
+  searchParams: Promise<{ title?: string; projectId?: string }>
 }) {
   // Ensure user is authenticated
   const { userId } = await auth()
@@ -29,13 +29,17 @@ export default async function SessionPage({
   }
 
   // Await searchParams (Next.js 15+ requirement)
-  const { title: titleParam } = await searchParams
+  const { title: titleParam, projectId } = await searchParams
 
   // Get session title from query params or use default
   const title = titleParam || 'Deep Work Session'
 
-  // Create new session in database
-  const sessionResult = await createSession(title)
+  // Create new session in database with optional projectId
+  const sessionResult = await createSession(
+    title,
+    undefined, // plannedBlockId
+    projectId && projectId !== 'none' ? projectId : undefined
+  )
 
   // Handle error case
   if ('error' in sessionResult) {

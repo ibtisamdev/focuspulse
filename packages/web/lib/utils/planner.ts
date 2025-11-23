@@ -156,12 +156,19 @@ export function calculateDaySummary(events: PlannerEvent[], date: string): DaySu
   dayEvents.forEach(event => {
     const start = timeToMinutes(event.startTime);
     const end = timeToMinutes(event.endTime);
-    scheduledMinutes += (end - start);
+    let duration = end - start;
+
+    // Handle events that span midnight (end time is before start time)
+    if (duration < 0) {
+      duration += (24 * 60); // Add 24 hours in minutes
+    }
+
+    scheduledMinutes += duration;
   });
 
   // Full 24-hour day (24 hours = 1440 minutes)
   const totalDayMinutes = 24 * 60;
-  const freeMinutes = totalDayMinutes - scheduledMinutes;
+  const freeMinutes = Math.max(0, totalDayMinutes - scheduledMinutes);
 
   return {
     totalEvents,

@@ -218,7 +218,7 @@ function mapBlockCategoryToEventColor(category: BlockCategory, customColor?: str
  * @returns PlannerEvent for the UI
  */
 export function plannedBlockToEvent(
-  block: PlannedBlock,
+  block: PlannedBlock & { project?: { id: string; name: string; color: string | null } | null },
   date: Date
 ): PlannerEvent {
   // For recurring events, use the provided date with the time from startTime
@@ -238,6 +238,11 @@ export function plannedBlockToEvent(
     date: formatDateISO(date),
     category: mapBlockCategoryToEventCategory(block.category),
     color: mapBlockCategoryToEventColor(block.category, block.color),
+    project: block.project ? {
+      id: block.project.id,
+      name: block.project.name,
+      color: block.project.color,
+    } : undefined,
   }
 }
 
@@ -249,7 +254,7 @@ export function plannedBlockToEvent(
  * @returns PlannerEvent for the matching day in the week
  */
 export function plannedBlockToWeekEvent(
-  block: PlannedBlock,
+  block: PlannedBlock & { project?: { id: string; name: string; color: string | null } | null },
   weekStartDate: Date
 ): PlannerEvent {
   // For one-time events, use the specificDate
@@ -268,7 +273,7 @@ export function plannedBlockToWeekEvent(
  * @returns Array of PlannerEvents
  */
 export function plannedBlocksToWeekEvents(
-  blocks: PlannedBlock[],
+  blocks: Array<PlannedBlock & { project?: { id: string; name: string; color: string | null } | null }>,
   weekStartDate: Date
 ): PlannerEvent[] {
   // Calculate week end date (Saturday at 23:59:59)
@@ -294,7 +299,12 @@ export function plannedBlocksToWeekEvents(
     // Non-recurring events: only show if specificDate falls within this week
     if (block.specificDate) {
       const specificDate = new Date(block.specificDate)
-      return specificDate >= weekStartDate && specificDate <= weekEndDate
+      // Normalize to date-only comparison (ignore time component)
+      const specificDateOnly = new Date(specificDate.getFullYear(), specificDate.getMonth(), specificDate.getDate())
+      const weekStartDateOnly = new Date(weekStartDate.getFullYear(), weekStartDate.getMonth(), weekStartDate.getDate())
+      const weekEndDateOnly = new Date(weekEndDate.getFullYear(), weekEndDate.getMonth(), weekEndDate.getDate())
+
+      return specificDateOnly >= weekStartDateOnly && specificDateOnly <= weekEndDateOnly
     }
 
     // If not recurring and no specific date, don't show it

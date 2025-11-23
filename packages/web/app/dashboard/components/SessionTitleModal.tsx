@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   Dialog,
@@ -13,6 +13,15 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { getProjects } from '@/app/actions/project'
+import type { Project } from '@prisma/client'
 
 interface SessionTitleModalProps {
   open: boolean
@@ -31,7 +40,27 @@ const QUICK_TEMPLATES = [
 export function SessionTitleModal({ open, onOpenChange }: SessionTitleModalProps) {
   const router = useRouter()
   const [title, setTitle] = useState('')
+  const [projectId, setProjectId] = useState<string>('')
+  const [projects, setProjects] = useState<Project[]>([])
   const [error, setError] = useState('')
+
+  // Fetch projects when modal opens
+  useEffect(() => {
+    if (open) {
+      loadProjects()
+    }
+  }, [open])
+
+  const loadProjects = async () => {
+    try {
+      const result = await getProjects({ status: 'ACTIVE' })
+      if (result.success && result.projects) {
+        setProjects(result.projects)
+      }
+    } catch (error) {
+      console.error('Error loading projects:', error)
+    }
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -47,11 +76,18 @@ export function SessionTitleModal({ open, onOpenChange }: SessionTitleModalProps
       return
     }
 
-    // Navigate to session page with title
-    router.push(`/dashboard/session?title=${encodeURIComponent(trimmedTitle)}`)
+    // Build query string with title and optional projectId
+    const params = new URLSearchParams({ title: trimmedTitle })
+    if (projectId) {
+      params.append('projectId', projectId)
+    }
+
+    // Navigate to session page with parameters
+    router.push(`/dashboard/session?${params.toString()}`)
 
     // Reset and close
     setTitle('')
+    setProjectId('')
     setError('')
     onOpenChange(false)
   }
@@ -63,6 +99,7 @@ export function SessionTitleModal({ open, onOpenChange }: SessionTitleModalProps
 
   const handleCancel = () => {
     setTitle('')
+    setProjectId('')
     setError('')
     onOpenChange(false)
   }
@@ -98,6 +135,39 @@ export function SessionTitleModal({ open, onOpenChange }: SessionTitleModalProps
               />
               {error && <p className="text-sm text-red-400">{error}</p>}
             </div>
+
+            {/* Project Selection */}
+            {projects.length > 0 && (
+              <div className="grid gap-2">
+                <Label htmlFor="project" className="text-zinc-300">
+                  Project (Optional)
+                </Label>
+                <Select value={projectId} onValueChange={setProjectId}>
+                  <SelectTrigger
+                    id="project"
+                    className="bg-[#09090b] border-zinc-800 text-zinc-50"
+                  >
+                    <SelectValue placeholder="Select a project..." />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#18181b] border-zinc-800">
+                    <SelectItem value="none" className="text-zinc-50 focus:bg-zinc-800 focus:text-zinc-50">No Project</SelectItem>
+                    {projects.map((project) => (
+                      <SelectItem key={project.id} value={project.id} className="text-zinc-50 focus:bg-zinc-800 focus:text-zinc-50">
+                        <div className="flex items-center gap-2">
+                          {project.color && (
+                            <div
+                              className="w-3 h-3 rounded-full"
+                              style={{ backgroundColor: project.color }}
+                            />
+                          )}
+                          {project.name}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             {/* Quick Templates */}
             <div className="grid gap-2">

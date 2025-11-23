@@ -18,6 +18,9 @@ export const plannedBlockSchema = z
     startTime: z.coerce.date(),
     duration: z.number().int().min(15, 'Minimum 15 minutes').max(480, 'Maximum 8 hours'),
 
+    // Project relationship
+    projectId: z.string().cuid('Invalid project ID').optional(),
+
     // Categorization
     category: BlockCategoryEnum.default(BlockCategory.OTHER),
     color: z.string().regex(hexColorRegex, 'Invalid color format (use #RGB or #RRGGBB)').optional(),

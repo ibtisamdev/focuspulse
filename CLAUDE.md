@@ -31,11 +31,10 @@ For detailed tech stack documentation, architecture patterns, and development gu
 ## Database & Migrations
 
 **IMPORTANT**: When working with Prisma and database schema changes:
-- **DO NOT apply manual migrations** - migrations are managed automatically by Prisma in production
-- **DO NOT run migration scripts** unless explicitly instructed by the user
-- When making schema changes, only update the `schema.prisma` file
-- Let Prisma handle migration generation and application through its standard workflow
-- For local development, use `npx prisma db push` to sync schema changes to your local database
+- **ALWAYS use migrations** - the same database is used for both local and dev environments
+- When making schema changes, update the `schema.prisma` file and run `npx prisma migrate dev` to create and apply migrations
+- **DO NOT use `npx prisma db push`** - always use proper migrations to maintain schema history
+- Migration files will be generated in `prisma/migrations/` and should be committed to version control
 - For production, Prisma Migrate handles migrations automatically on deployment
 
 ## Common Development Commands

@@ -11,6 +11,11 @@ export interface PlannerEvent {
   date: string;      // Format: "YYYY-MM-DD"
   color: EventColor;
   category: EventCategory;
+  project?: {
+    id: string;
+    name: string;
+    color: string | null;
+  };
 }
 
 export interface TimeSlot {

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { format } from 'date-fns'
 import { CalendarIcon } from 'lucide-react'
@@ -30,8 +30,9 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { createPlannedBlock, updatePlannedBlock } from '@/app/actions/planner'
+import { getProjects } from '@/app/actions/project'
 import { extractTimeString, combineDateAndTime } from '@/lib/utils/planner-db'
-import type { PlannedBlock } from '@prisma/client'
+import type { PlannedBlock, Project } from '@prisma/client'
 import { cn } from '@/lib/utils'
 
 interface EventModalProps {
@@ -104,6 +105,8 @@ export function EventModal({
     }
     return undefined
   })
+  const [projectId, setProjectId] = useState<string>(existingBlock?.projectId || 'none')
+  const [projects, setProjects] = useState<Project[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -113,6 +116,24 @@ export function EventModal({
     if (date) {
       // Update dayOfWeek to match the selected date (convert to Monday-based)
       setDayOfWeek((date.getDay() + 6) % 7)
+    }
+  }
+
+  // Load projects when modal opens
+  useEffect(() => {
+    if (open) {
+      loadProjects()
+    }
+  }, [open])
+
+  const loadProjects = async () => {
+    try {
+      const result = await getProjects({ status: 'ACTIVE' })
+      if (result.success && result.projects) {
+        setProjects(result.projects)
+      }
+    } catch (error) {
+      console.error('Error loading projects:', error)
     }
   }
 
@@ -156,6 +177,7 @@ export function EventModal({
           tags: [],
           recurrenceDays: [],
           isActive: true,
+          projectId: projectId !== 'none' ? projectId : undefined,
         })
       } else if (existingBlock) {
         await updatePlannedBlock({
@@ -172,6 +194,7 @@ export function EventModal({
           tags: existingBlock.tags,
           recurrenceDays: existingBlock.recurrenceDays,
           isActive: existingBlock.isActive,
+          projectId: projectId !== 'none' ? projectId : undefined,
         })
       }
 
@@ -192,6 +215,7 @@ export function EventModal({
     setDuration(90)
     setIsRecurring(false)
     setSpecificDate(undefined)
+    setProjectId('none')
     setError(null)
   }
 
@@ -231,6 +255,48 @@ export function EventModal({
                 className="bg-zinc-900 border-zinc-700 text-zinc-100 placeholder:text-zinc-500"
               />
             </div>
+
+            {/* Project Selector (Optional) */}
+            {projects.length > 0 && (
+              <div className="space-y-2 mb-6">
+                <Label htmlFor="project" className="text-zinc-200 font-medium">
+                  Project (Optional)
+                </Label>
+                <Select value={projectId} onValueChange={setProjectId}>
+                  <SelectTrigger
+                    id="project"
+                    className="bg-zinc-900 border-zinc-700 text-zinc-100"
+                  >
+                    <SelectValue placeholder="Select a project..." />
+                  </SelectTrigger>
+                  <SelectContent className="bg-zinc-900 border-zinc-700">
+                    <SelectItem
+                      value="none"
+                      className="text-zinc-100 focus:bg-zinc-800 focus:text-zinc-50"
+                    >
+                      No Project
+                    </SelectItem>
+                    {projects.map((project) => (
+                      <SelectItem
+                        key={project.id}
+                        value={project.id}
+                        className="text-zinc-100 focus:bg-zinc-800 focus:text-zinc-50"
+                      >
+                        <div className="flex items-center gap-2">
+                          {project.color && (
+                            <div
+                              className="w-3 h-3 rounded-full flex-shrink-0"
+                              style={{ backgroundColor: project.color }}
+                            />
+                          )}
+                          <span className="truncate">{project.name}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             {/* GROUP 2: Recurring Decision */}
             <div className="flex items-center space-x-3 mb-5">

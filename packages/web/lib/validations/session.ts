@@ -17,6 +17,7 @@ export const createSessionSchema = z.object({
     .max(200, 'Session title must be less than 200 characters')
     .trim(),
   plannedBlockId: z.string().cuid('Invalid planned block ID').optional(),
+  projectId: z.string().cuid('Invalid project ID').optional(),
 })
 
 export type CreateSessionInput = z.infer<typeof createSessionSchema>

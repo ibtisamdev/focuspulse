@@ -10,12 +10,10 @@ import { cn } from '@/lib/utils'
 type FilterOption = 'all' | 'active' | 'on-hold' | 'completed'
 
 interface ProjectFiltersProps {
-  onSearchChange?: (search: string) => void
-  onFilterChange?: (filter: FilterOption) => void
+  onFilterChange?: (search: string, status: string) => void
 }
 
 export function ProjectFilters({
-  onSearchChange,
   onFilterChange
 }: ProjectFiltersProps) {
   const [activeFilter, setActiveFilter] = useState<FilterOption>('all')
@@ -23,12 +21,12 @@ export function ProjectFilters({
 
   const handleSearchChange = (value: string) => {
     setSearchValue(value)
-    onSearchChange?.(value)
+    onFilterChange?.(value, activeFilter)
   }
 
-  const handleFilterChange = (filter: FilterOption) => {
+  const handleStatusChange = (filter: FilterOption) => {
     setActiveFilter(filter)
-    onFilterChange?.(filter)
+    onFilterChange?.(searchValue, filter)
   }
 
   const filters: { value: FilterOption; label: string }[] = [
@@ -60,7 +58,7 @@ export function ProjectFilters({
           {filters.map((filter) => (
             <Button
               key={filter.value}
-              onClick={() => handleFilterChange(filter.value)}
+              onClick={() => handleStatusChange(filter.value)}
               className={cn(
                 'flex-1 md:flex-initial px-4 py-2 text-sm font-medium transition-colors',
                 activeFilter === filter.value

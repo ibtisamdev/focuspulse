@@ -23,12 +23,13 @@ import { calculateSessionDuration } from '@/lib/utils/planner-db'
  * Create a new session
  * @param title - What the user is working on
  * @param plannedBlockId - Optional ID of the planned block this session is created from
+ * @param projectId - Optional ID of the project this session belongs to
  * @returns Session ID and start time, or error
  */
-export async function createSession(title: string, plannedBlockId?: string) {
+export async function createSession(title: string, plannedBlockId?: string, projectId?: string) {
   try {
     // Validate input
-    const validatedInput = createSessionSchema.parse({ title, plannedBlockId })
+    const validatedInput = createSessionSchema.parse({ title, plannedBlockId, projectId })
 
     // Check authentication
     const { userId: clerkId } = await auth()
@@ -51,6 +52,7 @@ export async function createSession(title: string, plannedBlockId?: string) {
         userId: user.id,
         title: validatedInput.title,
         plannedBlockId: validatedInput.plannedBlockId,
+        projectId: validatedInput.projectId,
         startTime: new Date(),
         completed: false,
         isPaused: false,
