@@ -268,7 +268,11 @@ export async function exportUserData() {
       })),
       plannedBlocks: user.plannedBlocks.map(block => ({
         title: block.title,
-        dayOfWeek: block.dayOfWeek ?? (block.specificDate ? block.specificDate.getDay() : null),
+        // Calculate dayOfWeek from startTime or specificDate (Monday=0)
+        dayOfWeek: (() => {
+          const date = block.specificDate || block.startTime
+          return (date.getDay() + 6) % 7 // Convert to Monday-based
+        })(),
         startTime: extractTimeString(block.startTime), // Format DateTime to HH:MM
         duration: block.duration,
         isRecurring: block.isRecurring,

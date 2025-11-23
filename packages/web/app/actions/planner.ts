@@ -42,7 +42,6 @@ export async function getPlannedBlocks() {
       isActive: true,
     },
     orderBy: [
-      { dayOfWeek: 'asc' },
       { startTime: 'asc' },
     ],
   })
@@ -53,22 +52,27 @@ export async function getPlannedBlocks() {
 /**
  * Get planned blocks for a specific day of week
  * Includes recurring blocks for that day
- * Note: One-time events now have dayOfWeek=null, so they won't be included here.
- * Use getAllPlannedBlocks() or filter by specificDate for one-time events.
+ * Note: Day of week is calculated from startTime (Monday=0)
  */
 export async function getPlannedBlocksForDay(dayOfWeek: number) {
   const userId = await getDbUserId()
 
-  const blocks = await db.plannedBlock.findMany({
+  // Fetch all recurring blocks and filter in memory by day of week
+  const allBlocks = await db.plannedBlock.findMany({
     where: {
       userId,
-      dayOfWeek,
-      isRecurring: true, // Only recurring blocks have dayOfWeek populated
+      isRecurring: true,
       isActive: true,
     },
     orderBy: {
       startTime: 'asc',
     },
+  })
+
+  // Filter by day of week (calculated from startTime)
+  const blocks = allBlocks.filter((block) => {
+    const calculatedDay = (block.startTime.getDay() + 6) % 7 // Convert to Monday-based
+    return calculatedDay === dayOfWeek
   })
 
   return blocks
@@ -112,7 +116,6 @@ export async function getPlannedBlocksForDateRange(startDate: Date, endDate: Dat
       ],
     },
     orderBy: [
-      { dayOfWeek: 'asc' },
       { startTime: 'asc' },
     ],
   })
@@ -186,11 +189,12 @@ export async function updatePlannedBlock(input: UpdatePlannedBlockInput) {
 
   // Check for conflicts (excluding current block)
   if (updateData.startTime && updateData.duration) {
-    // Calculate dayOfWeek for conflict checking if not provided (Monday-based)
+    // Calculate dayOfWeek for conflict checking (Monday-based)
+    // Use startTime to determine day for recurring events
     const dayOfWeekForConflicts = updateData.dayOfWeek ??
-      existing.dayOfWeek ??
       (updateData.specificDate ? (updateData.specificDate.getDay() + 6) % 7 :
-       existing.specificDate ? (existing.specificDate.getDay() + 6) % 7 : (new Date().getDay() + 6) % 7)
+       existing.specificDate ? (existing.specificDate.getDay() + 6) % 7 :
+       (existing.startTime.getDay() + 6) % 7)
 
     const conflicts = await checkTimeConflicts(
       userId,
@@ -288,20 +292,22 @@ async function checkTimeConflicts(
   excludeId?: string
 ) {
   // Get all blocks that could potentially conflict
-  // For recurring events: get blocks with same dayOfWeek (recurring blocks)
-  // For one-time events: get recurring blocks on that day AND one-time events on the same date
-  const existingBlocks = await db.plannedBlock.findMany({
+  // Fetch all recurring and one-time blocks, then filter by day
+  const allBlocks = await db.plannedBlock.findMany({
     where: {
       userId,
       isActive: true,
       ...(excludeId ? { id: { not: excludeId } } : {}),
-      OR: [
-        // Recurring blocks on the same day of week
-        { dayOfWeek, isRecurring: true },
-        // One-time events (will be filtered by date later)
-        { isRecurring: false },
-      ],
     },
+  })
+
+  // Filter recurring blocks by day of week (calculated from startTime)
+  const existingBlocks = allBlocks.filter((block) => {
+    if (block.isRecurring) {
+      const blockDay = (block.startTime.getDay() + 6) % 7 // Convert to Monday-based
+      return blockDay === dayOfWeek
+    }
+    return true // Include all one-time events for further filtering
   })
 
   // For one-time events, only check against blocks on the same specific date
@@ -399,20 +405,36 @@ export async function duplicatePlannedBlock(
     )
   }
 
+  // Calculate new startTime for recurring events (encode day of week)
+  const isRecurring = options?.makeRecurring ?? sourceBlock.isRecurring
+  let newStartTime = sourceBlock.startTime
+
+  if (isRecurring) {
+    // Encode targetDayOfWeek in startTime using reference week (2024-01-01 = Monday)
+    const referenceWeekStart = new Date('2024-01-01') // Monday
+    const targetDate = new Date(referenceWeekStart)
+    targetDate.setDate(referenceWeekStart.getDate() + targetDayOfWeek)
+    // Preserve time component from source
+    targetDate.setHours(sourceBlock.startTime.getHours())
+    targetDate.setMinutes(sourceBlock.startTime.getMinutes())
+    targetDate.setSeconds(0)
+    targetDate.setMilliseconds(0)
+    newStartTime = targetDate
+  }
+
   // Create duplicate with all fields
   const newBlock = await db.plannedBlock.create({
     data: {
       userId,
       title: sourceBlock.title,
       description: sourceBlock.description,
-      dayOfWeek: targetDayOfWeek,
-      startTime: sourceBlock.startTime,
+      startTime: newStartTime,
       duration: sourceBlock.duration,
       category: sourceBlock.category,
       color: sourceBlock.color,
       priority: sourceBlock.priority,
       tags: sourceBlock.tags,
-      isRecurring: options?.makeRecurring ?? sourceBlock.isRecurring,
+      isRecurring,
       recurrenceFrequency: options?.recurrenceFrequency ?? sourceBlock.recurrenceFrequency,
       recurrenceDays: sourceBlock.recurrenceDays,
       recurrenceEndDate: sourceBlock.recurrenceEndDate,
