@@ -14,14 +14,16 @@ interface DayData {
 interface WeeklyOverviewProps {
   thisWeekData: DayData[]
   lastWeekData: DayData[]
+  weeklyGoalHours?: number
 }
 
-export function WeeklyOverview({ thisWeekData, lastWeekData }: WeeklyOverviewProps) {
+export function WeeklyOverview({ thisWeekData, lastWeekData, weeklyGoalHours = 12 }: WeeklyOverviewProps) {
   const [selectedWeek, setSelectedWeek] = useState<'this' | 'last'>('this')
   const data = selectedWeek === 'this' ? thisWeekData : lastWeekData
 
-  // Calculate max hours for percentage calculation
-  const maxHours = Math.max(...data.map(d => d.hours), 1) // At least 1 to avoid division by zero
+  // Calculate daily goal (weekly goal / 5 days, with focus on weekdays)
+  // Assume 5 working days, so divide by 5 for a more realistic daily target
+  const dailyTargetHours = weeklyGoalHours / 5
 
   return (
     <Card className="bg-[#18181b] border-zinc-800 mb-8">
@@ -59,7 +61,10 @@ export function WeeklyOverview({ thisWeekData, lastWeekData }: WeeklyOverviewPro
       <CardContent className="p-6 pt-2">
         <div className="space-y-4">
           {data.map((item) => {
-            const percentage = maxHours > 0 ? (item.hours / maxHours) * 100 : 0
+            // Calculate percentage based on daily target
+            const percentage = Math.min((item.hours / dailyTargetHours) * 100, 100)
+            const hoursDisplay = item.hours > 0 ? `${item.hours.toFixed(1)}h` : '0h'
+
             return (
               <div key={item.day} className="flex items-center gap-4">
                 <span className="text-xs text-zinc-400 w-12">{item.day}</span>
@@ -70,9 +75,7 @@ export function WeeklyOverview({ thisWeekData, lastWeekData }: WeeklyOverviewPro
                     indicatorClassName="bg-zinc-500"
                   />
                 </div>
-                <span className="text-xs text-zinc-400 w-12 text-right">
-                  {item.hours > 0 ? `${item.hours}h` : '0h'}
-                </span>
+                <span className="text-xs text-zinc-400 w-12 text-right">{hoursDisplay}</span>
               </div>
             )
           })}

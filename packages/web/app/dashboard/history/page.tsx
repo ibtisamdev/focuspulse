@@ -3,6 +3,7 @@ import { WeeklyOverview } from './components/WeeklyOverview'
 import { SessionTimeline } from './components/SessionTimeline'
 import { InsightCards } from './components/InsightCards'
 import { getHistoryStats, getWeeklyData, getSessionsHistory, getInsights } from '@/app/actions/history'
+import { getCurrentUser } from '@/app/actions/user'
 
 /**
  * Session History & Stats Page
@@ -11,6 +12,14 @@ import { getHistoryStats, getWeeklyData, getSessionsHistory, getInsights } from 
  * statistics, weekly overview, and insights.
  */
 export default async function HistoryPage() {
+  // Get user from database
+  const currentUserResult = await getCurrentUser()
+  const currentUser = currentUserResult.user
+
+  if (!currentUser) {
+    throw new Error('User not found')
+  }
+
   // Fetch all data in parallel for better performance
   const [stats, thisWeekData, lastWeekData, sessionsData, insights] = await Promise.all([
     getHistoryStats(),
@@ -41,7 +50,11 @@ export default async function HistoryPage() {
       />
 
       {/* Weekly Overview Chart */}
-      <WeeklyOverview thisWeekData={thisWeekData} lastWeekData={lastWeekData} />
+      <WeeklyOverview
+        thisWeekData={thisWeekData}
+        lastWeekData={lastWeekData}
+        weeklyGoalHours={currentUser.weeklyGoalHours}
+      />
 
       {/* Session Timeline */}
       <SessionTimeline
