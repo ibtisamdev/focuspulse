@@ -267,8 +267,14 @@ export async function getUserStats() {
     where: { clerkId },
   })
 
+  // If user doesn't exist yet, return empty stats
   if (!user) {
-    throw new Error('User not found')
+    return {
+      sessionsToday: 0,
+      focusTime: '0m',
+      target: '12h',
+      totalSecondsToday: 0,
+    }
   }
 
   // Get today's date range
@@ -340,15 +346,17 @@ export async function getActiveSession() {
   const { userId: clerkId } = await auth()
 
   if (!clerkId) {
-    throw new Error('Unauthorized')
+    return null
   }
 
   const user = await db.user.findUnique({
     where: { clerkId },
   })
 
+  // If user doesn't exist yet (e.g., first login before sync), return null
+  // They definitely don't have an active session
   if (!user) {
-    throw new Error('User not found')
+    return null
   }
 
   // Find any incomplete session

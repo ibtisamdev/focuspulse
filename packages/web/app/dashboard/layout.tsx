@@ -15,6 +15,7 @@ export default async function DashboardLayout({
   children: React.ReactNode
 }) {
   // Fetch active session to determine header state
+  // Returns null if user doesn't exist yet (first login)
   const activeSession = await getActiveSession()
 
   return (
