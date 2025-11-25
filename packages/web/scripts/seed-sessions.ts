@@ -26,6 +26,7 @@ if (result.error) {
 }
 
 import { db } from '../lib/db'
+import { calculateSessionDuration } from '../lib/utils/planner-db'
 
 // Mock session data configurations
 const sessionTitles = [
@@ -201,13 +202,13 @@ async function main() {
         title: getRandomElement(sessionTitles),
         startTime,
         endTime,
-        duration, // Net focus time (excluding breaks)
         totalBreakTime: breakTime,
         breakCount: breakTime > 0 ? Math.floor(Math.random() * 3) + 1 : 0,
         notes: getRandomElement(sessionNotes),
-        isPlanned: Math.random() > 0.3, // 70% planned, 30% ad-hoc
         completed: true,
         isPaused: false,
+        // Note: duration is now calculated from startTime, endTime, totalBreakTime
+        // Note: plannedBlockId would be set here to link to a planned block
       })
       totalSessions++
     }
@@ -234,11 +235,9 @@ async function main() {
         title: getRandomElement(sessionTitles),
         startTime,
         endTime,
-        duration,
         totalBreakTime: breakTime,
         breakCount: breakTime > 0 ? Math.floor(Math.random() * 3) + 1 : 0,
         notes: getRandomElement(sessionNotes),
-        isPlanned: Math.random() > 0.4,
         completed: true,
         isPaused: false,
       })
@@ -262,14 +261,15 @@ async function main() {
       completed: true,
     },
     select: {
-      duration: true,
       startTime: true,
-      isPlanned: true,
+      endTime: true,
+      totalBreakTime: true,
+      plannedBlockId: true,
     },
   })
 
-  const totalHours = allSessions.reduce((sum, s) => sum + (s.duration || 0), 0) / 3600
-  const plannedCount = allSessions.filter(s => s.isPlanned).length
+  const totalHours = allSessions.reduce((sum, s) => sum + (calculateSessionDuration(s) || 0), 0) / 3600
+  const plannedCount = allSessions.filter(s => s.plannedBlockId !== null).length
   const adhocCount = allSessions.length - plannedCount
 
   console.log('📊 Statistics:')

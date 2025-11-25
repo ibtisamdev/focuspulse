@@ -2,6 +2,7 @@
 
 import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
+import { calculateSessionDuration } from '@/lib/utils/planner-db'
 
 /**
  * Get all-time history statistics for the current user
@@ -23,16 +24,20 @@ export async function getHistoryStats() {
       completed: true,
     },
     select: {
-      duration: true,
       startTime: true,
+      endTime: true,
+      totalBreakTime: true,
     },
     orderBy: {
       startTime: 'asc',
     },
   })
 
-  // Calculate total hours
-  const totalSeconds = sessions.reduce((sum, session) => sum + (session.duration || 0), 0)
+  // Calculate total hours using duration calculation helper
+  const totalSeconds = sessions.reduce((sum, session) => {
+    const duration = calculateSessionDuration(session)
+    return sum + (duration || 0)
+  }, 0)
   const totalHours = totalSeconds / 3600
 
   // Calculate current streak
@@ -123,11 +128,12 @@ export async function getWeeklyData(weekOffset: number = 0) {
   })
   if (!user) throw new Error('User not found')
 
-  // Calculate week boundaries (Sunday to Saturday)
+  // Calculate week boundaries (Monday to Sunday)
   const now = new Date()
-  const currentDay = now.getDay() // 0 = Sunday, 6 = Saturday
+  const currentDay = now.getDay() // 0 = Sunday, 1 = Monday, etc.
+  const daysFromMonday = (currentDay + 6) % 7 // Convert to Monday-based (0 = Monday)
   const weekStart = new Date(now)
-  weekStart.setDate(now.getDate() - currentDay + (weekOffset * 7))
+  weekStart.setDate(now.getDate() - daysFromMonday + (weekOffset * 7))
   weekStart.setHours(0, 0, 0, 0)
 
   const weekEnd = new Date(weekStart)
@@ -145,17 +151,18 @@ export async function getWeeklyData(weekOffset: number = 0) {
       },
     },
     select: {
-      duration: true,
       startTime: true,
+      endTime: true,
+      totalBreakTime: true,
     },
   })
 
-  // Initialize array for 7 days (Sunday to Saturday)
+  // Initialize array for 7 days (Monday to Sunday)
   const weekData = Array.from({ length: 7 }, (_, i) => {
     const date = new Date(weekStart)
     date.setDate(weekStart.getDate() + i)
     return {
-      day: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][i],
+      day: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i],
       hours: 0,
       date: date.toISOString().split('T')[0],
     }
@@ -163,8 +170,9 @@ export async function getWeeklyData(weekOffset: number = 0) {
 
   // Aggregate sessions by day
   sessions.forEach(session => {
-    const dayIndex = session.startTime.getDay()
-    weekData[dayIndex].hours += (session.duration || 0) / 3600
+    const dayIndex = (session.startTime.getDay() + 6) % 7 // Convert to Monday-based (0 = Monday)
+    const duration = calculateSessionDuration(session)
+    weekData[dayIndex].hours += (duration || 0) / 3600
   })
 
   // Round hours to 1 decimal place
@@ -202,9 +210,9 @@ export async function getSessionsHistory(options?: {
   }
 
   if (type === 'planned') {
-    where.isPlanned = true
+    where.plannedBlockId = { not: null }
   } else if (type === 'adhoc') {
-    where.isPlanned = false
+    where.plannedBlockId = null
   }
 
   if (searchQuery && searchQuery.trim()) {
@@ -222,9 +230,9 @@ export async function getSessionsHistory(options?: {
       title: true,
       startTime: true,
       endTime: true,
-      duration: true,
+      totalBreakTime: true,
       notes: true,
-      isPlanned: true,
+      plannedBlockId: true,
     },
     orderBy: {
       startTime: 'desc',
@@ -237,7 +245,16 @@ export async function getSessionsHistory(options?: {
   const totalCount = await db.session.count({ where })
 
   // Group sessions by date
-  const groupedSessions: { [key: string]: any[] } = {}
+  type SessionHistoryItem = {
+    id: string
+    title: string
+    startTime: string
+    endTime?: string
+    duration: number
+    notes: string | null
+    isPlanned: boolean
+  }
+  const groupedSessions: { [key: string]: SessionHistoryItem[] } = {}
   const today = new Date().toISOString().split('T')[0]
   const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
 
@@ -259,6 +276,8 @@ export async function getSessionsHistory(options?: {
       groupedSessions[dateLabel] = []
     }
 
+    const duration = calculateSessionDuration(session)
+
     groupedSessions[dateLabel].push({
       id: session.id,
       title: session.title,
@@ -272,9 +291,9 @@ export async function getSessionsHistory(options?: {
         minute: '2-digit',
         hour12: true
       }),
-      duration: Math.round((session.duration || 0) / 60), // Convert to minutes
+      duration: Math.round((duration || 0) / 60), // Convert to minutes
       notes: session.notes,
-      isPlanned: session.isPlanned,
+      isPlanned: !!session.plannedBlockId,
     })
   })
 
@@ -305,9 +324,10 @@ export async function getInsights() {
       completed: true,
     },
     select: {
-      duration: true,
       startTime: true,
-      isPlanned: true,
+      endTime: true,
+      totalBreakTime: true,
+      plannedBlockId: true,
     },
   })
 
@@ -322,11 +342,12 @@ export async function getInsights() {
   // Calculate best day (day of week with highest average hours)
   const dayTotals: { [key: number]: { hours: number; count: number } } = {}
   sessions.forEach(session => {
-    const dayOfWeek = session.startTime.getDay()
+    const dayOfWeek = (session.startTime.getDay() + 6) % 7 // Convert to Monday-based (0 = Monday)
     if (!dayTotals[dayOfWeek]) {
       dayTotals[dayOfWeek] = { hours: 0, count: 0 }
     }
-    dayTotals[dayOfWeek].hours += (session.duration || 0) / 3600
+    const duration = calculateSessionDuration(session)
+    dayTotals[dayOfWeek].hours += (duration || 0) / 3600
     dayTotals[dayOfWeek].count += 1
   })
 
@@ -340,7 +361,7 @@ export async function getInsights() {
     }
   })
 
-  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+  const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
   const bestDay = {
     day: dayNames[bestDayIndex],
     avgHours: Number(bestDayAvg.toFixed(1)),
@@ -370,7 +391,7 @@ export async function getInsights() {
   }
 
   // Calculate completion rate of planned sessions
-  const plannedSessions = sessions.filter(s => s.isPlanned)
+  const plannedSessions = sessions.filter(s => s.plannedBlockId)
   const completionRate = plannedSessions.length > 0
     ? Math.round((plannedSessions.length / sessions.length) * 100)
     : 0

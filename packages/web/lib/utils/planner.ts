@@ -12,13 +12,14 @@ export function getWeekNumber(date: Date): number {
 }
 
 /**
- * Gets the start of the week (Sunday) for a given date
- * Note: Returns Sunday as start to match dayOfWeek in PlannedBlock (0 = Sunday)
+ * Gets the start of the week (Monday) for a given date
+ * Note: Returns Monday as start (Monday = 0 in our system)
  */
 export function getStartOfWeek(date: Date): Date {
   const d = new Date(date);
-  const day = d.getDay();
-  const diff = d.getDate() - day; // Sunday is day 0
+  const day = d.getDay(); // 0 = Sunday, 1 = Monday, etc.
+  const daysFromMonday = (day + 6) % 7; // Convert to Monday-based (0 = Monday)
+  const diff = d.getDate() - daysFromMonday; // Monday is day 0
   return new Date(d.setDate(diff));
 }
 
@@ -155,12 +156,19 @@ export function calculateDaySummary(events: PlannerEvent[], date: string): DaySu
   dayEvents.forEach(event => {
     const start = timeToMinutes(event.startTime);
     const end = timeToMinutes(event.endTime);
-    scheduledMinutes += (end - start);
+    let duration = end - start;
+
+    // Handle events that span midnight (end time is before start time)
+    if (duration < 0) {
+      duration += (24 * 60); // Add 24 hours in minutes
+    }
+
+    scheduledMinutes += duration;
   });
 
   // Full 24-hour day (24 hours = 1440 minutes)
   const totalDayMinutes = 24 * 60;
-  const freeMinutes = totalDayMinutes - scheduledMinutes;
+  const freeMinutes = Math.max(0, totalDayMinutes - scheduledMinutes);
 
   return {
     totalEvents,

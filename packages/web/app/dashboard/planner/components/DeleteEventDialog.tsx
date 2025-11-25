@@ -12,6 +12,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { deletePlannedBlock } from '@/app/actions/planner'
+import { extractTimeString } from '@/lib/utils/planner-db'
 import type { PlannedBlock } from '@prisma/client'
 
 interface DeleteEventDialogProps {
@@ -20,10 +21,16 @@ interface DeleteEventDialogProps {
   block: PlannedBlock | null
 }
 
-const DAYS_OF_WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+const DAYS_OF_WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
 export function DeleteEventDialog({ open, onClose, block }: DeleteEventDialogProps) {
   const [isDeleting, setIsDeleting] = useState(false)
+
+  // Calculate day of week from startTime (Monday-based: 0 = Monday)
+  const getDayOfWeek = (block: PlannedBlock) => {
+    const date = block.specificDate || block.startTime
+    return (date.getDay() + 6) % 7 // Convert to Monday-based
+  }
 
   const handleDelete = async () => {
     if (!block) return
@@ -52,7 +59,12 @@ export function DeleteEventDialog({ open, onClose, block }: DeleteEventDialogPro
             <div className="mt-3 p-3 bg-zinc-900 rounded-md border border-zinc-800">
               <p className="font-semibold text-zinc-50">{block.title}</p>
               <p className="text-sm text-zinc-400 mt-1">
-                {DAYS_OF_WEEK[block.dayOfWeek]} at {block.startTime}
+                {block.isRecurring
+                  ? `${DAYS_OF_WEEK[getDayOfWeek(block)]} at ${extractTimeString(block.startTime)}`
+                  : block.specificDate
+                    ? `${block.specificDate.toLocaleDateString()} at ${extractTimeString(block.startTime)}`
+                    : `${extractTimeString(block.startTime)}`
+                }
               </p>
               <p className="text-sm text-zinc-400">
                 Duration: {block.duration} minutes

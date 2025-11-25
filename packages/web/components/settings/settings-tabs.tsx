@@ -4,7 +4,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ProfileTab } from './profile-tab';
 import { SecurityTab } from './security-tab';
 import { PreferencesTab } from './preferences-tab';
-import { DangerZoneTab } from './danger-zone-tab';
 
 interface SettingsTabsProps {
   initialData: {
@@ -45,13 +44,6 @@ export function SettingsTabs({ initialData }: SettingsTabsProps) {
         >
           Preferences
         </TabsTrigger>
-        {/* TODO: Add Danger Zone tab back in later */}
-        {/* <TabsTrigger
-          value="danger-zone"
-          className="data-[state=active]:!bg-zinc-700 data-[state=active]:!text-white data-[state=active]:!border-zinc-600 !text-zinc-500 data-[state=inactive]:!bg-transparent"
-        >
-          Danger Zone
-        </TabsTrigger> */}
       </TabsList>
 
       <TabsContent value="profile" className="mt-6 bg-zinc-900 border border-zinc-800 rounded-lg p-6">
@@ -64,10 +56,6 @@ export function SettingsTabs({ initialData }: SettingsTabsProps) {
 
       <TabsContent value="preferences" className="mt-6 bg-zinc-900 border border-zinc-800 rounded-lg p-6">
         <PreferencesTab initialData={initialData} />
-      </TabsContent>
-
-      <TabsContent value="danger-zone" className="mt-6 bg-zinc-900 border border-zinc-800 rounded-lg p-6">
-        <DangerZoneTab />
       </TabsContent>
     </Tabs>
   );

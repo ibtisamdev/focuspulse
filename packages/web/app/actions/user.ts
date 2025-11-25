@@ -57,7 +57,7 @@ export async function syncUser() {
     }
 
     return { success: true }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error syncing user:', error)
     return { success: false, error: 'Failed to sync user' }
   }
@@ -78,7 +78,7 @@ export async function getCurrentUser() {
     })
 
     return { success: true, user }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error getting current user:', error)
     return { success: false, error: 'Failed to get user', user: null }
   }

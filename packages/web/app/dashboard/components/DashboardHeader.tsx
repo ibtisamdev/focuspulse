@@ -5,7 +5,7 @@ import { UserButton } from '@clerk/nextjs'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Bell, Play } from 'lucide-react'
+import { Play } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { SessionTitleModal } from './SessionTitleModal'
 
@@ -49,6 +49,15 @@ export function DashboardHeader({ hasActiveSession = false }: DashboardHeaderPro
               Planner
             </Link>
             <Link
+              href="/projects"
+              className={cn(
+                'transition-colors',
+                isActive('/projects') ? 'text-zinc-50' : 'text-zinc-400 hover:text-zinc-300'
+              )}
+            >
+              Projects
+            </Link>
+            <Link
               href="/dashboard/history"
               className={cn(
                 'transition-colors',
@@ -57,15 +66,6 @@ export function DashboardHeader({ hasActiveSession = false }: DashboardHeaderPro
             >
               History
             </Link>
-            {/* <Link
-              href="/projects"
-              className={cn(
-                'transition-colors',
-                isActive('/projects') ? 'text-zinc-50' : 'text-zinc-400 hover:text-zinc-300'
-              )}
-            >
-              Projects
-            </Link> */}
             <Link
               href="/dashboard/settings"
               className={cn(
@@ -89,18 +89,6 @@ export function DashboardHeader({ hasActiveSession = false }: DashboardHeaderPro
               <span className="hidden sm:inline">Start Focus</span>
             </Button>
           )}
-          {/* <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8 border-zinc-800 bg-[#18181b] hover:bg-zinc-800/50"
-            aria-label="Notifications"
-            onClick={() => {
-              // Placeholder for notifications functionality
-              console.log('Notifications clicked')
-            }}
-          >
-            <Bell className="h-4 w-4 text-zinc-400" />
-          </Button> */}
           <UserButton
             userProfileMode="navigation"
             userProfileUrl="/dashboard/settings"

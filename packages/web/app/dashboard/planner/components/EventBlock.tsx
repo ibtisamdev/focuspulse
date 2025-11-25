@@ -142,7 +142,18 @@ export function EventBlock({ event, onClick, onDelete, onStartSession }: EventBl
           <div className={cn('text-[10px] mt-0.5', colors.subtext)}>
             {formatTimeRange(event.startTime, event.endTime)}
           </div>
-          {event.description && height > 60 && (
+          {event.project && (
+            <div className={cn('flex items-center gap-1.5 mt-1', colors.subtext)}>
+              {event.project.color && (
+                <div
+                  className="w-2 h-2 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: event.project.color }}
+                />
+              )}
+              <span className="text-[10px] truncate">{event.project.name}</span>
+            </div>
+          )}
+          {event.description && height > 80 && (
             <div className={cn('text-[10px] mt-1', colors.subtext, 'opacity-50')}>
               {event.description}
             </div>

@@ -4,6 +4,7 @@ import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 import { createSessionSchema, sessionIdSchema } from '@/lib/validations/session'
+import { calculateSessionDuration } from '@/lib/utils/planner-db'
 
 /**
  * Server Actions for Session Management
@@ -21,13 +22,14 @@ import { createSessionSchema, sessionIdSchema } from '@/lib/validations/session'
 /**
  * Create a new session
  * @param title - What the user is working on
- * @param isPlanned - Whether this was a planned session
+ * @param plannedBlockId - Optional ID of the planned block this session is created from
+ * @param projectId - Optional ID of the project this session belongs to
  * @returns Session ID and start time, or error
  */
-export async function createSession(title: string, isPlanned: boolean = false) {
+export async function createSession(title: string, plannedBlockId?: string, projectId?: string) {
   try {
     // Validate input
-    const validatedInput = createSessionSchema.parse({ title, isPlanned })
+    const validatedInput = createSessionSchema.parse({ title, plannedBlockId, projectId })
 
     // Check authentication
     const { userId: clerkId } = await auth()
@@ -49,7 +51,8 @@ export async function createSession(title: string, isPlanned: boolean = false) {
       data: {
         userId: user.id,
         title: validatedInput.title,
-        isPlanned: validatedInput.isPlanned,
+        plannedBlockId: validatedInput.plannedBlockId,
+        projectId: validatedInput.projectId,
         startTime: new Date(),
         completed: false,
         isPaused: false,
@@ -65,7 +68,7 @@ export async function createSession(title: string, isPlanned: boolean = false) {
         startTime: session.startTime,
       },
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error creating session:', error)
 
     // Handle validation errors
@@ -182,18 +185,11 @@ export async function endSession(sessionId: string, notes?: string) {
       totalBreakTime += currentPauseDuration
     }
 
-    // Calculate total elapsed time
-    const totalDuration = Math.floor((endTime.getTime() - session.startTime.getTime()) / 1000)
-
-    // Net focus time = total time - break time
-    const netFocusTime = totalDuration - totalBreakTime
-
     // Update session as completed
     const completedSession = await db.session.update({
       where: { id: validatedId },
       data: {
         endTime,
-        duration: netFocusTime, // Store net focus time (excluding breaks)
         totalBreakTime, // Store final break time
         completed: true,
         isPaused: false,
@@ -203,6 +199,9 @@ export async function endSession(sessionId: string, notes?: string) {
       },
     })
 
+    // Calculate net focus time (duration is no longer stored, calculated on-the-fly)
+    const netFocusTime = calculateSessionDuration(completedSession)
+
     revalidatePath('/dashboard')
     revalidatePath('/dashboard/session')
     revalidatePath('/dashboard/history')
@@ -211,13 +210,13 @@ export async function endSession(sessionId: string, notes?: string) {
       success: true,
       data: {
         id: completedSession.id,
-        duration: completedSession.duration,
+        duration: netFocusTime, // Calculated, not stored
         totalBreakTime: completedSession.totalBreakTime,
         breakCount: completedSession.breakCount,
         title: completedSession.title,
       },
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error ending session:', error)
 
     // Handle validation errors
@@ -301,12 +300,18 @@ export async function getUserStats() {
       },
     },
     select: {
-      duration: true,
+      startTime: true,
+      endTime: true,
+      totalBreakTime: true,
     },
   })
 
+  // Calculate duration for each session and sum
   const totalSecondsToday = todaySessions.reduce(
-    (sum, session) => sum + (session.duration || 0),
+    (sum, session) => {
+      const duration = calculateSessionDuration(session)
+      return sum + (duration || 0)
+    },
     0
   )
 

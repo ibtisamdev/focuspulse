@@ -28,6 +28,15 @@ For detailed tech stack documentation, architecture patterns, and development gu
 - ShadCN components should be installed in the `packages/web` directory
 - All UI should follow ShadCN's design system and component patterns
 
+## Database & Migrations
+
+**IMPORTANT**: When working with Prisma and database schema changes:
+- **ALWAYS use migrations** - the same database is used for both local and dev environments
+- When making schema changes, update the `schema.prisma` file and run `npx prisma migrate dev` to create and apply migrations
+- **DO NOT use `npx prisma db push`** - always use proper migrations to maintain schema history
+- Migration files will be generated in `prisma/migrations/` and should be committed to version control
+- For production, Prisma Migrate handles migrations automatically on deployment
+
 ## Common Development Commands
 
 ### Essential Commands
