@@ -15,7 +15,17 @@ export async function getHistoryStats() {
     where: { clerkId },
     select: { id: true },
   })
-  if (!user) throw new Error('User not found')
+
+  // If user doesn't exist yet, return empty stats
+  if (!user) {
+    return {
+      totalHours: 0,
+      streak: 0,
+      longestStreak: 0,
+      sessionCount: 0,
+      avgLength: 0,
+    }
+  }
 
   // Get all completed sessions
   const sessions = await db.session.findMany({
@@ -126,7 +136,26 @@ export async function getWeeklyData(weekOffset: number = 0) {
     where: { clerkId },
     select: { id: true },
   })
-  if (!user) throw new Error('User not found')
+
+  // If user doesn't exist yet, return empty week data
+  if (!user) {
+    const now = new Date()
+    const currentDay = now.getDay()
+    const daysFromMonday = (currentDay + 6) % 7
+    const weekStart = new Date(now)
+    weekStart.setDate(now.getDate() - daysFromMonday + (weekOffset * 7))
+    weekStart.setHours(0, 0, 0, 0)
+
+    return Array.from({ length: 7 }, (_, i) => {
+      const date = new Date(weekStart)
+      date.setDate(weekStart.getDate() + i)
+      return {
+        day: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i],
+        hours: 0,
+        date: date.toISOString().split('T')[0],
+      }
+    })
+  }
 
   // Calculate week boundaries (Monday to Sunday)
   const now = new Date()
