@@ -11,6 +11,7 @@ ALTER TABLE "PlannedBlock" ADD COLUMN "category" "BlockCategory" NOT NULL DEFAUL
 ALTER TABLE "PlannedBlock" ADD COLUMN "color" TEXT;
 ALTER TABLE "PlannedBlock" ADD COLUMN "priority" INTEGER NOT NULL DEFAULT 0;
 ALTER TABLE "PlannedBlock" ADD COLUMN "tags" TEXT[] DEFAULT ARRAY[]::TEXT[];
+ALTER TABLE "PlannedBlock" ADD COLUMN "specificDate" TIMESTAMP(3);
 ALTER TABLE "PlannedBlock" ADD COLUMN "recurrenceFrequency" "RecurrenceFrequency";
 ALTER TABLE "PlannedBlock" ADD COLUMN "recurrenceDays" INTEGER[] DEFAULT ARRAY[]::INTEGER[];
 ALTER TABLE "PlannedBlock" ADD COLUMN "recurrenceEndDate" TIMESTAMP(3);
