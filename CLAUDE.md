@@ -37,6 +37,69 @@ For detailed tech stack documentation, architecture patterns, and development gu
 - Migration files will be generated in `prisma/migrations/` and should be committed to version control
 - For production, Prisma Migrate handles migrations automatically on deployment
 
+### Migration Safety Rules
+
+**CRITICAL - NEVER VIOLATE THESE RULES:**
+
+1. **NEVER manually create or edit SQL files** in `prisma/migrations/`
+2. **ALWAYS use `npx prisma migrate dev`** to create migrations
+3. **ALWAYS test migrations** with `npx prisma migrate reset` before committing
+4. **NEVER reference a column before it's created** in the same migration
+5. **ALWAYS commit migration files** along with `schema.prisma` changes
+6. **NEVER use `npx prisma db push`** in production environments
+
+### Correct Migration Workflow
+
+```bash
+# 1. Edit schema.prisma ONLY - never touch migration SQL files
+# Example: Add a new field to a model
+
+# 2. Generate migration automatically
+cd packages/web
+npx prisma migrate dev --name describe_your_change
+
+# 3. Test the migration on a fresh database
+npx prisma migrate reset --force --skip-seed
+
+# 4. If successful, commit both files
+git add prisma/migrations prisma/schema.prisma
+git commit -m "Add migration: describe_your_change"
+git push
+
+# 5. Vercel will automatically run on deployment:
+# npx prisma migrate deploy
+```
+
+### Migration Testing
+
+Before committing any migration:
+```bash
+# Test that migration applies cleanly on fresh database
+cd packages/web
+npx prisma migrate reset --force --skip-seed
+
+# Verify migration status
+npx prisma migrate status
+# Should show: "Database schema is up to date!"
+```
+
+### Common Migration Mistakes to Avoid
+
+❌ **DON'T:**
+- Manually write or edit SQL in `prisma/migrations/`
+- Reference columns before they're created
+- Use `npx prisma db push` (except for rapid prototyping in local dev only)
+- Skip testing migrations before committing
+- Manually modify the `_prisma_migrations` table
+
+✅ **DO:**
+- Edit `schema.prisma` only
+- Let Prisma generate migrations
+- Test with `npx prisma migrate reset`
+- Commit migration files with schema changes
+- Use `npx prisma migrate dev` for development
+- Use `npx prisma migrate deploy` for production (handled automatically by Vercel)
+
 ## Common Development Commands
 
 ### Essential Commands
